@@ -4,6 +4,16 @@
 # 脚本在用户首次进入桌面时应用（详见 /usr/share/plasma/shanhe/win11-layout.js）。
 set -e
 
+# 防御：统一创建本钩子要写入的全部目录（CI 全新检出时这些目录不一定存在）
+mkdir -p /etc/skel/.config/autostart-scripts \
+         /etc/skel/.local/share/konsole \
+         /etc/skel/.local/share/color-schemes \
+         /etc/skel/桌面 \
+         /usr/share/wallpapers/shanhe/contents/images \
+         /usr/share/plasma/shanhe \
+         /etc/sddm.conf.d \
+         /etc/environment.d
+
 echo "-- 主题：生成中文字区 locale"
 sed -i 's/^# *zh_CN.UTF-8/zh_CN.UTF-8/' /etc/locale.gen
 locale-gen 2>/dev/null || true
