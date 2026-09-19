@@ -7,14 +7,18 @@
 
 set -e
 
+# 镜像源：默认清华 TUNA；可用环境变量覆盖（GitHub Actions 等海外环境用官方源更快）
+MIRROR="${SHANHE_MIRROR:-https://mirrors.tuna.tsinghua.edu.cn/debian}"
+MIRROR_SECURITY="${SHANHE_MIRROR_SECURITY:-https://mirrors.tuna.tsinghua.edu.cn/debian-security}"
+
 lb config noauto \
     --distribution trixie \
     --archive-areas "main contrib non-free non-free-firmware" \
-    --mirror-binary "https://mirrors.tuna.tsinghua.edu.cn/debian" \
-    --mirror-binary-security "https://mirrors.tuna.tsinghua.edu.cn/debian-security" \
-    --mirror-bootstrap "https://mirrors.tuna.tsinghua.edu.cn/debian" \
-    --mirror-chroot "https://mirrors.tuna.tsinghua.edu.cn/debian" \
-    --mirror-chroot-security "https://mirrors.tuna.tsinghua.edu.cn/debian-security" \
+    --mirror-binary "$MIRROR" \
+    --mirror-binary-security "$MIRROR_SECURITY" \
+    --mirror-bootstrap "$MIRROR" \
+    --mirror-chroot "$MIRROR" \
+    --mirror-chroot-security "$MIRROR_SECURITY" \
     --architecture amd64 \
     --binary-images iso-hybrid \
     --bootappend-live "boot=live components locales=zh_CN.UTF-8 keyboard-layouts=cn timezone=Asia/Shanghai live-config.username=user live-config.hostname=shanhe quiet" \
