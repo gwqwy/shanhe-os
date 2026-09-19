@@ -1,0 +1,32 @@
+# 山河蓝配色方案：Breeze 明亮基调 + Win11 式蓝色选中
+# 供 KDE Plasma 应用（kdeglobals: ColorScheme=山河蓝）
+[ColorScheme]
+Name=山河蓝
+
+[Colors:Window]
+BackgroundNormal=243,243,243
+BackgroundAlternate=233,236,239
+ForegroundNormal=20,20,20
+ForegroundInactive=110,110,110
+
+[Colors:View]
+BackgroundNormal=255,255,255
+BackgroundAlternate=240,243,247
+ForegroundNormal=20,20,20
+ForegroundInactive=110,110,110
+
+[Colors:Button]
+BackgroundNormal=249,249,249
+ForegroundNormal=20,20,20
+
+[Colors:Selection]
+BackgroundNormal=0,103,192
+ForegroundNormal=255,255,255
+
+[Colors:Tooltip]
+BackgroundNormal=40,44,52
+ForegroundNormal=250,250,250
+
+[Colors:Complementary]
+BackgroundNormal=240,243,247
+ForegroundNormal=20,20,20

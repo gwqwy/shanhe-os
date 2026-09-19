@@ -1,0 +1,6 @@
+#!/bin/sh
+# 标准构建入口：lb build，输出由 build.sh 重命名。
+# 注意 noauto：lb build 默认会执行 auto/build 包装脚本（也就是本文件），
+# 不加 noauto 会无限递归（Argument list too long）。
+set -e
+lb build noauto "${@}"

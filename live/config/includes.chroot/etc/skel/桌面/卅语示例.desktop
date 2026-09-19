@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=卅语示例
+Comment=打开内置的卅语示例程序
+Exec=dolphin /usr/local/share/sahou/示例
+Icon=folder-notes
+Terminal=false
+Categories=Development;

@@ -1,0 +1,4 @@
+#!/bin/sh
+# 清理构建目录（保留 auto/ 与 config/；软件包缓存由 lb clean 自行取舍）。
+lb clean noauto "${@}"
+rm -f config/build config/common config/environment

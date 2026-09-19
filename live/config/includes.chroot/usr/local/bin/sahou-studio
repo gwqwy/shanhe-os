@@ -1,0 +1,24 @@
+#!/bin/sh
+# 启动卅语工作室（山河Linux 原生卅语 IDE）
+# 崩溃时弹窗显示原因并写日志，避免双击后"只加载不打开"却无迹可寻。
+LOG="$HOME/.cache/sahou-studio.log"
+mkdir -p "$(dirname "$LOG")"
+
+python3 /opt/shanhe-studio/shanhe-studio.py "$@" 2>>"$LOG"
+RC=$?
+
+if [ "$RC" -ne 0 ]; then
+    MSG=$(tail -n 25 "$LOG" 2>/dev/null)
+    if [ -n "$MSG" ]; then
+        TEXT="启动出错（退出码 $RC，完整日志：$LOG）
+$MSG"
+    else
+        TEXT="启动出错（退出码 $RC），且没有任何报错输出。
+通常是内存不足被系统终止，或图形栈异常。
+排查：终端运行  python3 /opt/shanhe-studio/shanhe-studio.py  看实时输出；
+内存：free -h；内核日志：journalctl -k -b | grep -i oom"
+    fi
+    zenity --error --title="卅语工作室启动失败" --width=760 --text="$TEXT" 2>/dev/null \
+        || echo "$TEXT"
+fi
+exit "$RC"

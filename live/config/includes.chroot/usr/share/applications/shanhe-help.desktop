@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=山河帮助
+Name[en]=ShanHe Help
+Comment=山河Linux 使用手册与卅语入门
+Exec=/usr/local/bin/shanhe-help
+Icon=help-browser
+Terminal=false
+Categories=Utility;

@@ -1,0 +1,33 @@
+#!/bin/sh
+# 山河Linux live-build 配置。
+# 用法：由 build.sh 调用 `lb config`；不要单独运行（除非你知道自己在做什么）。
+#
+# 镜像源：默认清华 TUNA（国内快）。海外机器可换回官方源：
+#   https://deb.debian.org/debian  与  https://security.debian.org/debian-security
+
+set -e
+
+lb config noauto \
+    --distribution trixie \
+    --archive-areas "main contrib non-free non-free-firmware" \
+    --mirror-binary "https://mirrors.tuna.tsinghua.edu.cn/debian" \
+    --mirror-binary-security "https://mirrors.tuna.tsinghua.edu.cn/debian-security" \
+    --mirror-bootstrap "https://mirrors.tuna.tsinghua.edu.cn/debian" \
+    --mirror-chroot "https://mirrors.tuna.tsinghua.edu.cn/debian" \
+    --mirror-chroot-security "https://mirrors.tuna.tsinghua.edu.cn/debian-security" \
+    --architecture amd64 \
+    --binary-images iso-hybrid \
+    --bootappend-live "boot=live components locales=zh_CN.UTF-8 keyboard-layouts=cn timezone=Asia/Shanghai live-config.username=user live-config.hostname=shanhe quiet" \
+    --linux-flavours amd64 \
+    --debian-installer live \
+    --debian-installer-distribution trixie \
+    --iso-volume "ShanHe-Linux-1.0" \
+    --image-name shanhe \
+    --iso-application "ShanHe Linux 1.0" \
+    --iso-publisher "ShanHe Project; https://github.com/gwqwy/sahou" \
+    --memtest none \
+    --firmware-chroot false \
+    --security true \
+    --updates false \
+    --backports false \
+    "${@}"

@@ -1,0 +1,77 @@
+#!/bin/sh
+# 0010：把「卅语（sahou）」从源码编译进系统 —— 山河Linux 的灵魂步骤。
+# 源码位于 /usr/local/src/sahou（由 includes.chroot 原样带入，离线可构建）。
+set -e
+
+SRC=/usr/local/src/sahou
+test -d "$SRC" || { echo "!! 找不到卅语源码 $SRC"; exit 1; }
+cd "$SRC"
+
+echo "-- 卅语：清理残留编译产物，保证源码纯净"
+rm -f sahou sahou.exe sahou.wasm
+
+echo "-- 卅语：检查 Go 工具链版本（sahou 需要 1.23+）"
+NEED_MAJOR=1 NEED_MINOR=23
+GO_OK=0
+if command -v go >/dev/null 2>&1; then
+    GO_VER=$(go env GOVERSION 2>/dev/null | sed 's/^go//')
+    GO_MAJOR=$(echo "$GO_VER" | cut -d. -f1)
+    GO_MINOR=$(echo "$GO_VER" | cut -d. -f2)
+    if [ "${GO_MAJOR:-0}" -gt "$NEED_MAJOR" ] || \
+       { [ "${GO_MAJOR:-0}" = "$NEED_MAJOR" ] && [ "${GO_MINOR:-0}" -ge "$NEED_MINOR" ]; }
+    then
+        GO_OK=1
+    fi
+fi
+if [ "$GO_OK" != "1" ]; then
+    echo "   系统 Go 不满足（或缺失），从 go.dev 下载官方工具链……"
+    GOTAR=/tmp/go.tgz
+    curl -fsSL --retry 3 -o "$GOTAR" https://go.dev/dl/go1.24.4.linux-amd64.tar.gz
+    rm -rf /tmp/go-toolchain
+    mkdir -p /tmp/go-toolchain
+    tar -C /tmp/go-toolchain -xzf "$GOTAR"
+    rm -f "$GOTAR"
+    export PATH="/tmp/go-toolchain/go/bin:$PATH"
+fi
+
+echo "-- 卅语：先交叉编译浏览器 WASM 运行时（主程序要把它嵌进单文件里）"
+export GOFLAGS=-mod=mod
+export GOTOOLCHAIN=local
+export GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod
+CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -o sahou.wasm ./cmd/sahouwasm
+
+echo "-- 卅语：编译 Linux 原生解释器（内嵌标准库与 WASM 运行时）"
+CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /usr/local/bin/sahou .
+
+echo "-- 卅语：注册中文命令名「卅」，与 sahou 等价"
+ln -sf /usr/local/bin/sahou /usr/local/bin/卅
+
+echo "-- 卅语：安装示例库到系统与新建用户的家目录"
+mkdir -p /usr/local/share/sahou
+cp -r "$SRC/examples" /usr/local/share/sahou/示例
+cp -r "$SRC/docs" /usr/local/share/sahou/文档
+for d in /etc/skel; do
+    mkdir -p "$d/示例"
+    cp -r "$SRC/examples/." "$d/示例/"
+done
+
+echo "-- 卅语：注册 .saho 文件类型（text/x-saho）"
+cat > /usr/share/mime/packages/saho.xml <<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="text/x-saho">
+    <comment>卅语源文件（Sahou source）</comment>
+    <comment xml:lang="en">Sahou source file</comment>
+    <glob pattern="*.saho"/>
+    <sub-class-of type="text/plain"/>
+  </mime-type>
+</mime-info>
+XML
+update-mime-database /usr/share/mime 2>/dev/null || true
+
+echo "-- 卅语：验证解释器可运行"
+/usr/local/bin/sahou version || true
+
+echo "-- 卅语：清理构建缓存，给镜像瘦身"
+rm -rf /tmp/go-cache /tmp/go-mod /tmp/go-toolchain /root/.cache
+apt-get clean

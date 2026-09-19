@@ -1,0 +1,15 @@
+# 构建产物：根目录成品不入库，发布时挂 GitHub Releases
+# （sahou.wasm 克隆后先跑 bash tests/wasm.sh 生成，再 go build）
+/sahou
+/sahou.exe
+/sahou.wasm
+*.exe~
+*.db
+应用页面/
+
+# 测试临时产物
+tests/.tmp_app/
+tests/.tmp_*
+
+# 编辑器
+.vscode/

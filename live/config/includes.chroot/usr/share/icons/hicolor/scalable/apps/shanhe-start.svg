@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 山河开始徽标：四格窗，山河蓝渐变 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4aa3f0"/>
+      <stop offset="100%" stop-color="#0f4fa8"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7ec3ff"/>
+      <stop offset="100%" stop-color="#2b6fd4"/>
+    </linearGradient>
+  </defs>
+  <rect x="4"  y="4"  width="26" height="26" rx="4" fill="url(#g2)"/>
+  <rect x="34" y="4"  width="26" height="26" rx="4" fill="url(#g1)"/>
+  <rect x="4"  y="34" width="26" height="26" rx="4" fill="url(#g1)"/>
+  <rect x="34" y="34" width="26" height="26" rx="4" fill="url(#g2)"/>
+</svg>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  卅语（sahou）语法高亮定义 —— 山河Linux「卅语工作室」使用。
+  关键字表与上游 lexer.go 的 KeyWords 保持一致（中英双语）。
+  安装位置：/usr/share/gtksourceview-4/language-specs/sahou.lang
+-->
+<language id="saho" name="卅语 (Sahou)" version="2.0" _section="Sources">
+  <metadata>
+    <property name="mimetypes">text/x-saho</property>
+    <property name="globs">*.saho</property>
+    <property name="line-comment-start">#</property>
+  </metadata>
+
+  <definitions>
+    <!-- ── 定义可复用的小片段 ── -->
+    <define-regex id="identifier" extended="true">
+        [\p{L}_][\p{L}\p{N}_]*
+    </define-regex>
+
+    <context id="saho" class="no-spell-check">
+
+      <include>
+
+        <!-- 注释：# 到行尾 -->
+        <context id="comment" style-ref="comment" end-at-line-end="true"
+                 class="comment" class-disabled="no-spell-check">
+          <start>#</start>
+          <include>
+            <context ref="def:in-comment"/>
+          </include>
+        </context>
+
+        <!-- 字符串："…"，内部支持 {表达式} 插值 -->
+        <context id="string" style-ref="string" class="string">
+          <start>"</start>
+          <end>"</end>
+          <include>
+            <context ref="def:escape"/>
+            <context id="interpolation" style-ref="operator" class="string">
+              <start>\{</start>
+              <end>\}</end>
+              <include>
+                <context id="interp-inner-string" style-ref="string">
+                  <start>"</start>
+                  <end>"</end>
+                </context>
+                <context id="interp-number" style-ref="number">
+                  <match extended="true">[0-9]+(\.[0-9]+)?</match>
+                </context>
+                <context id="interp-keywords" style-ref="keyword">
+                  <keyword>如果</keyword><keyword>if</keyword>
+                  <keyword>否则</keyword><keyword>else</keyword>
+                  <keyword>返回</keyword><keyword>return</keyword>
+                </context>
+              </include>
+            </context>
+          </include>
+        </context>
+
+        <!-- 双语关键字（与上游 lexer 完全一致） -->
+        <context id="keywords" style-ref="keyword">
+          <keyword>如果</keyword><keyword>if</keyword>
+          <keyword>又如</keyword><keyword>elif</keyword>
+          <keyword>否则</keyword><keyword>else</keyword>
+          <keyword>当</keyword><keyword>while</keyword>
+          <keyword>遍历</keyword><keyword>for</keyword>
+          <keyword>于</keyword><keyword>in</keyword>
+          <keyword>完毕</keyword><keyword>end</keyword>
+          <keyword>函数</keyword><keyword>fn</keyword>
+          <keyword>返回</keyword><keyword>return</keyword>
+          <keyword>设</keyword><keyword>let</keyword>
+          <keyword>并且</keyword><keyword>and</keyword>
+          <keyword>或者</keyword><keyword>or</keyword>
+          <keyword>非</keyword><keyword>not</keyword>
+          <keyword>尝试</keyword><keyword>try</keyword>
+          <keyword>接住</keyword><keyword>catch</keyword>
+          <keyword>格子</keyword><keyword>cell</keyword>
+          <keyword>跳出</keyword><keyword>break</keyword>
+          <keyword>继续</keyword><keyword>continue</keyword>
+          <keyword>用</keyword><keyword>use</keyword>
+          <keyword>引入</keyword><keyword>import</keyword>
+        </context>
+
+        <!-- 布尔与空值 -->
+        <context id="constants" style-ref="special-constant">
+          <keyword>真</keyword><keyword>true</keyword>
+          <keyword>假</keyword><keyword>false</keyword>
+          <keyword>空值</keyword><keyword>null</keyword>
+        </context>
+
+        <!-- 内置函数（中英双语） -->
+        <context id="builtins" style-ref="builtin">
+          <keyword>打印</keyword><keyword>print</keyword>
+          <keyword>输入</keyword><keyword>input</keyword>
+          <keyword>数</keyword><keyword>num</keyword>
+          <keyword>文本</keyword><keyword>str</keyword>
+          <keyword>列表</keyword><keyword>list</keyword>
+          <keyword>字典</keyword><keyword>dict</keyword>
+          <keyword>从a到b</keyword><keyword>range_to</keyword>
+          <keyword>长度</keyword><keyword>len</keyword>
+          <keyword>取</keyword><keyword>slice</keyword>
+          <keyword>抛出</keyword><keyword>throw</keyword>
+          <keyword>类型</keyword><keyword>type_of</keyword>
+          <keyword>包含</keyword><keyword>contains</keyword>
+          <keyword>求和</keyword><keyword>sum</keyword>
+          <keyword>最大值</keyword><keyword>max</keyword>
+          <keyword>最小值</keyword><keyword>min</keyword>
+          <keyword>排序</keyword><keyword>sorted</keyword>
+          <keyword>反转</keyword><keyword>reversed</keyword>
+          <keyword>连接</keyword><keyword>join</keyword>
+          <keyword>分割</keyword><keyword>split</keyword>
+          <keyword>替换</keyword><keyword>replace</keyword>
+          <keyword>修剪</keyword><keyword>trim</keyword>
+          <keyword>转大写</keyword><keyword>upper</keyword>
+          <keyword>转小写</keyword><keyword>lower</keyword>
+          <keyword>绝对值</keyword><keyword>abs</keyword>
+          <keyword>平方根</keyword><keyword>sqrt</keyword>
+          <keyword>四舍五入</keyword><keyword>round</keyword>
+          <keyword>读取文件</keyword><keyword>read_file</keyword>
+          <keyword>写入文件</keyword><keyword>write_file</keyword>
+          <keyword>文件存在</keyword><keyword>file_exists</keyword>
+          <keyword>位置</keyword><keyword>find</keyword>
+        </context>
+
+        <!-- 标准库模块名 -->
+        <context id="modules" style-ref="type">
+          <keyword>应用</keyword>
+          <keyword>页面</keyword>
+          <keyword>网络</keyword>
+          <keyword>数据库</keyword>
+          <keyword>中文数字</keyword>
+          <keyword>几何库</keyword>
+          <keyword>单位换算</keyword>
+          <keyword>文本库</keyword>
+          <keyword>游戏库</keyword>
+          <keyword>算术库</keyword>
+          <keyword>算法库</keyword>
+          <keyword>统计库</keyword>
+          <keyword>进制库</keyword>
+          <keyword>集合运算</keyword>
+        </context>
+
+        <!-- 数字 -->
+        <context id="number" style-ref="number">
+          <match extended="true">
+            \b[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?\b
+          </match>
+        </context>
+
+        <!-- 运算符 -->
+        <context id="operators" style-ref="operator">
+          <match extended="true">
+            == | != | &lt;= | &gt;= | &amp;&amp; | \|\| |
+            ＝＝ | ！＝ | ＜＝ | ＞＝ |
+            = | &lt; | &gt; | \+ | - | \* | / | ％ | !
+            | ＜ | ＞ | ＋ | － | ＊ | ／ | ！
+          </match>
+        </context>
+
+      </include>
+    </context>
+  </definitions>
+</language>

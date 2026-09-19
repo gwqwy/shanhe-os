@@ -1,0 +1,37 @@
+#!/bin/sh
+# 9000（binary 阶段）：把 GRUB 引导菜单中文化。
+# trixie 版 live-build 生成的标签为 "Live system (amd64)" / 'Start installer' 等，
+# 此钩子在 ISO 目录树已生成、打包前运行，直接改写生成的配置。
+set -e
+
+echo "-- GRUB：中文化引导菜单"
+GRUB_DIR=binary/boot/grub
+if [ -d "$GRUB_DIR" ]; then
+    for f in "$GRUB_DIR"/*.cfg; do
+        [ -f "$f" ] || continue
+        sed -i \
+            -e 's/Live system (autodetect) (fail-safe mode)/启动 山河Linux（自动探测·安全模式）/g' \
+            -e 's/Live system (autodetect)/启动 山河Linux（自动探测）/g' \
+            -e 's/Live system (amd64 fail-safe mode)/启动 山河Linux（安全模式）/g' \
+            -e 's/Live system (amd64)/启动 山河Linux（体验模式）/g' \
+            -e 's/Live system, kernel/启动 山河Linux（指定内核 /g' \
+            -e 's/Live system/启动 山河Linux（体验模式）/g' \
+            -e "s/'Start installer'/安装 山河Linux/g" \
+            -e "s/'Graphical install'/图形安装 山河Linux/g" \
+            -e "s/'Advanced install options ...'/高级安装选项…/g" \
+            -e "s/'Text installer with dark theme ...'/文本安装器（深色主题）…/g" \
+            -e "s/'Text installer ...'/文本安装器…/g" \
+            -e "s/'Utilities...'/实用工具…/g" \
+            -e "s/'Verify integrity of the boot medium'/校验引导介质完整性/g" \
+            -e "s/'UEFI Firmware Settings'/UEFI 固件设置/g" \
+            -e 's/^set timeout=.*/set timeout=8/' \
+            "$f" || true
+    done
+    # 用山河壁纸做 GRUB 背景（live-theme 支持背景图时生效）
+    if [ -f /usr/share/wallpapers/shanhe/contents/images/1920x1080.png ]; then
+        mkdir -p "$GRUB_DIR/themes/shanhe" 2>/dev/null || true
+        cp -f /usr/share/wallpapers/shanhe/contents/images/1920x1080.png \
+              "$GRUB_DIR/themes/shanhe/background.png" 2>/dev/null || true
+    fi
+fi
+echo "-- GRUB：完成"

@@ -1,0 +1,16 @@
+* text=auto
+*.sh text eol=lf
+*.chroot text eol=lf
+*.binary text eol=lf
+*.hook.chroot text eol=lf
+*.hook.binary text eol=lf
+*.py text eol=lf
+*.vmx text eol=lf
+*.js text eol=lf
+*.lang text eol=lf
+*.conf text eol=lf
+*.desktop text eol=lf
+*.md text eol=lf
+*.colors text eol=lf
+*.profile text eol=lf
+*.colorscheme text eol=lf

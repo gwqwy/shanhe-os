@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=安装 NVIDIA 驱动
+Name[en]=Install NVIDIA Driver
+Comment=在物理机 NVIDIA 显卡上安装官方驱动（需要管理员密码）
+Exec=konsole -e pkexec /usr/local/lib/shanhe/nvidia-install.sh
+Icon=video-display
+Terminal=false
+Categories=System;

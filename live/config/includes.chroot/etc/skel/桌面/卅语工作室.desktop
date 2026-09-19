@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=卅语工作室
+Name[en]=Sahou Studio
+GenericName=卅语集成开发环境
+Comment=编写并运行卅语（sahou）程序：语法高亮、F5 一键运行
+Exec=/usr/local/bin/sahou-studio %F
+Icon=shanhe-studio
+Terminal=false
+Categories=Development;IDE;
+MimeType=text/x-saho;
+StartupNotify=true
