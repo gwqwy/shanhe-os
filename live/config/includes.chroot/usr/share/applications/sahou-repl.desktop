@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=卅语交互终端
+Name[en]=Sahou REPL
+Comment=输入一行执行一行，边写边学
+Exec=konsole -e /usr/local/bin/sahou
+Icon=utilities-terminal
+Terminal=false
+Categories=Development;

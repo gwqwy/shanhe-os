@@ -1,0 +1,53 @@
+#!/bin/sh
+# Wine 助手 —— 山河Linux 的 Windows 程序运行与配置中心（zenity 图形界面）
+export LANG=zh_CN.UTF-8
+
+if ! command -v zenity >/dev/null 2>&1; then
+    echo "需要 zenity 组件" >&2
+    exit 1
+fi
+
+while true; do
+    choice=$(zenity --list \
+        --title="Wine 助手 —— 山河Linux" \
+        --text="选择要进行的操作：" \
+        --column="操作" --column="说明" \
+        "运行 Windows 程序"    "选择一个 .exe 或 .msi 文件运行" \
+        "Wine 配置"            "打开 winecfg，配置驱动器、库、显示" \
+        "已安装程序管理"        "查看 / 卸载已安装的 Windows 程序" \
+        "中文字体修复"          "安装中文字体，解决乱码（需联网，较慢）" \
+        "初始化 / 修复容器"      "重建 Wine 容器（~/.wine）" \
+        "打开容器目录"          "文件管理器打开 ~/.wine/drive_c" \
+        --width=560 --height=440 2>/dev/null)
+    [ -z "$choice" ] && exit 0
+
+    case "$choice" in
+        "运行 Windows 程序")
+            exe=$(zenity --file-selection --title="选择 Windows 程序" \
+                --file-filter="Windows 程序 (*.exe *.msi) | *.exe *.msi" 2>/dev/null) || continue
+            [ -n "$exe" ] && (WINEDEBUG=-all wine "$exe" >/dev/null 2>&1 &)
+            ;;
+        "Wine 配置")
+            (WINEDEBUG=-all winecfg >/dev/null 2>&1 &)
+            ;;
+        "已安装程序管理")
+            (WINEDEBUG=-all uninstaller >/dev/null 2>&1 &)
+            ;;
+        "中文字体修复")
+            konsole -e winetricks cjkfonts 2>/dev/null \
+                || xterm -e winetricks cjkfonts 2>/dev/null \
+                || zenity --error --text="请打开终端手动运行：winetricks cjkfonts"
+            ;;
+        "初始化 / 修复容器")
+            zenity --question --text="将重建 ~/.wine 容器，已装程序会丢失，继续？" \
+                || continue
+            rm -rf "$HOME/.wine"
+            (WINEDEBUG=-all wine wineboot --init >/dev/null 2>&1)
+            wine regedit /usr/share/wine/shanhe/cjk-fonts.reg >/dev/null 2>&1
+            zenity --info --text="容器已重建并应用中文字体表。"
+            ;;
+        "打开容器目录")
+            dolphin "$HOME/.wine/drive_c" 2>/dev/null || xdg-open "$HOME/.wine/drive_c" &
+            ;;
+    esac
+done

@@ -1,0 +1,49 @@
+#!/bin/sh
+# 0040：Wine 兼容层的系统级配置 —— 中文环境、EXE 双击运行、新用户前缀初始化。
+set -e
+
+echo "-- Wine：新用户首次使用时自动初始化 64 位 Wine 前缀（含中文字体映射）"
+mkdir -p /etc/skel/.config/autostart-scripts
+cat > /etc/skel/.config/autostart-scripts/10-init-wine.sh <<'EOF'
+#!/bin/sh
+# 后台静默初始化 Wine 前缀（~/.wine），失败不影响桌面。
+if [ ! -d "$HOME/.wine" ] && command -v wine >/dev/null 2>&1; then
+    ( WINEDEBUG=-all wine wineboot --init >/dev/null 2>&1 ) &
+fi
+exit 0
+EOF
+chmod 755 /etc/skel/.config/autostart-scripts/10-init-wine.sh
+
+echo "-- Wine：系统级中文字体替换表（让没有中文字体的程序显示中文）"
+mkdir -p /usr/share/wine/shanhe
+cat > /usr/share/wine/shanhe/cjk-fonts.reg <<'EOF'
+REGEDIT4
+
+; 把常见 Windows 中文字体映射到系统 Noto CJK，避免 Wine 程序中文乱码/方块
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink]
+"Microsoft YaHei"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+"Microsoft YaHei UI"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+"SimSun"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+"SimHei"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+"宋体"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+"微软雅黑"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+"黑体"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+"Tahoma"="NotoSansCJK-Regular.ttc,Noto Sans CJK SC"
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontSubstitutes]
+"MS Shell Dlg"="Microsoft YaHei"
+"MS Shell Dlg 2"="Microsoft YaHei"
+EOF
+
+echo "-- Wine：首次进桌面自动导入字体表"
+cat > /etc/skel/.config/autostart-scripts/11-wine-cjk.sh <<'EOF'
+#!/bin/sh
+if [ -d "$HOME/.wine" ] && command -v wine >/dev/null 2>&1 && [ ! -f "$HOME/.wine/.shanhe-cjk" ]; then
+    ( WINEDEBUG=-all wine regedit /usr/share/wine/shanhe/cjk-fonts.reg >/dev/null 2>&1 \
+        && touch "$HOME/.wine/.shanhe-cjk" ) &
+fi
+exit 0
+EOF
+chmod 755 /etc/skel/.config/autostart-scripts/11-wine-cjk.sh
+
+echo "-- Wine：完成（wine / winetricks / 山河Wine助手 均可用）"

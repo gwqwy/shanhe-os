@@ -1,0 +1,79 @@
+# 山河Linux 软件包清单（Debian 13 / trixie）
+# 按"功能组"组织；带注释说明为什么装它。
+
+## ── 桌面基础：KDE Plasma（最接近 Windows 观感、可深度定制） ──
+plasma-desktop
+plasma-nm
+plasma-pa
+systemsettings
+kinfocenter
+sddm
+kwin-x11
+dolphin
+konsole
+kate
+ark
+gwenview
+kcalc
+kde-spectacle
+breeze
+breeze-gtk-theme
+oxygen-sounds
+xdg-user-dirs
+xdg-utils
+
+## ── 中文化与输入法 ──
+locales
+fonts-noto-cjk
+fonts-noto-color-emoji
+fcitx5
+fcitx5-chinese-addons
+fcitx5-config-qt
+kde-config-fcitx5
+
+## ── 卅语工作室（原生 IDE）的运行时 ──
+python3
+python3-gi
+gir1.2-gtk-3.0
+gir1.2-gtksource-4
+gir1.2-vte-2.91
+zenity
+
+## ── 编译卅语（Go 语言）与开发工具 ──
+golang-go
+git
+curl
+wget
+unzip
+ca-certificates
+
+## ── VMware 客户机集成（自适应分辨率 / 剪贴板 / 文件拖放）──
+open-vm-tools
+open-vm-tools-desktop
+
+## ── 显卡：Mesa 3D（VMware 虚拟 GPU）+ NVIDIA（物理机）──
+mesa-utils
+libgl1-mesa-dri
+libglx-mesa0
+vulkan-tools
+librsvg2-bin
+nvidia-detect
+firmware-misc-nonfree
+# 无线网卡固件（显式声明，避开 live-build 自动扫描带入的联网下载型固件包）
+firmware-iwlwifi
+firmware-atheros
+firmware-realtek
+
+## ── Windows 兼容层：Wine ──
+wine
+wine64
+wine-binfmt
+fonts-wine
+winetricks
+
+## ── 浏览器与日常 ──
+firefox-esr
+firefox-esr-l10n-zh-cn
+fastfetch
+htop
+nano

@@ -1,0 +1,43 @@
+#!/bin/sh
+# 0050：收尾 —— 欢迎语、版本信息、源码位置、镜像瘦身。
+set -e
+
+echo "-- 收尾：系统标识"
+cat > /etc/shanhe-release <<'EOF'
+PRETTY_NAME="山河 Linux 1.0 (ShanHe)"
+NAME="山河 Linux"
+VERSION_ID="1.0"
+VERSION="1.0 (ShanHe)"
+HOME_URL="https://github.com/gwqwy/sahou"
+ID=shanhe
+EOF
+
+echo "-- 收尾：终端欢迎信息"
+cat > /etc/motd <<'EOF'
+
+  山 ▂▃▅▂ 河 Linux 1.0 ── 中文原生编程操作系统
+  ────────────────────────────────────────────
+  写中文代码：    sahou run 程序.saho   （或直接敲  卅  进入交互环境）
+  打开编辑器：    桌面双击「卅语工作室」，F5 一键运行
+  运行 Windows：  双击 .exe，或在终端 wine 程序.exe
+  系统帮助：      见 ~/示例 目录与「山河帮助」
+  ────────────────────────────────────────────
+EOF
+
+echo "-- 收尾：/etc/issue（登录前提示）"
+cp /etc/motd /etc/issue 2>/dev/null || true
+
+echo "-- 收尾：记录软件来源"
+cat > /usr/local/share/sahou/来源.txt <<'EOF'
+卅语（sahou）：https://github.com/gwqwy/sahou （MIT License）
+源码快照位置：/usr/local/src/sahou
+示例位置：/usr/local/share/sahou/示例 及每个新用户的 ~/示例
+文档位置：/usr/local/share/sahou/文档
+EOF
+
+echo "-- 收尾：镜像瘦身"
+rm -rf /root/.cache /var/tmp/* /tmp/go-* 2>/dev/null || true
+apt-get clean || true
+find /usr/local/src/sahou -name '.git' -type d -prune -exec rm -rf {} + 2>/dev/null || true
+
+echo "-- 收尾：完成"

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 山河绽放壁纸：致敬 Windows 11 默认壁纸的抽象花窗，山河蓝调 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="46%" r="75%">
+      <stop offset="0%" stop-color="#123a6d"/>
+      <stop offset="55%" stop-color="#0b2550"/>
+      <stop offset="100%" stop-color="#061433"/>
+    </radialGradient>
+    <linearGradient id="petalA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7ec3ff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#2b6fd4" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="petalB" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4aa3f0" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#123a6d" stop-opacity="0.25"/>
+    </linearGradient>
+    <linearGradient id="petalC" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#a7d6ff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#1d5bb0" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="petalD" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#35558f" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#8fc6ff" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+    <g id="bloom">
+      <!-- 四层花瓣，旋转交叠出窗格花形 -->
+      <ellipse cx="0" cy="-260" rx="150" ry="300" fill="url(#petalA)"/>
+      <ellipse cx="260" cy="0" rx="300" ry="150" fill="url(#petalB)"/>
+      <ellipse cx="0" cy="260" rx="150" ry="300" fill="url(#petalC)"/>
+      <ellipse cx="-260" cy="0" rx="300" ry="150" fill="url(#petalD)"/>
+      <ellipse cx="184" cy="-184" rx="120" ry="260" fill="url(#petalB)" transform="rotate(45)"/>
+      <ellipse cx="184" cy="184" rx="260" ry="120" fill="url(#petalA)" transform="rotate(45)"/>
+      <ellipse cx="-184" cy="184" rx="120" ry="260" fill="url(#petalD)" transform="rotate(45)"/>
+      <ellipse cx="-184" cy="-184" rx="260" ry="120" fill="url(#petalC)" transform="rotate(45)"/>
+      <circle cx="0" cy="0" r="72" fill="#e8f3ff" opacity="0.9"/>
+      <circle cx="0" cy="0" r="110" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+
+  <!-- 远景光晕 -->
+  <circle cx="960" cy="500" r="520" fill="#1d5bb0" opacity="0.18" filter="url(#glow)"/>
+  <circle cx="960" cy="500" r="300" fill="#7ec3ff" opacity="0.10" filter="url(#glow)"/>
+
+  <!-- 主花窗 -->
+  <g transform="translate(960 500)" filter="url(#soft)" opacity="0.96">
+    <use href="#bloom" transform="rotate(22)"/>
+  </g>
+  <g transform="translate(960 500) scale(0.62) rotate(-14)" opacity="0.85">
+    <use href="#bloom"/>
+  </g>
+  <g transform="translate(960 500) scale(0.34) rotate(38)" opacity="0.9">
+    <use href="#bloom"/>
+  </g>
+
+  <!-- 点缀光点 -->
+  <g fill="#cfe6ff">
+    <circle cx="360" cy="260" r="3" opacity="0.5"/>
+    <circle cx="1560" cy="300" r="4" opacity="0.4"/>
+    <circle cx="1420" cy="800" r="3" opacity="0.45"/>
+    <circle cx="300" cy="820" r="4" opacity="0.35"/>
+    <circle cx="1180" cy="180" r="2.5" opacity="0.5"/>
+    <circle cx="740" cy="900" r="3" opacity="0.4"/>
+  </g>
+
+  <!-- 右下角标识 -->
+  <text x="1860" y="1042" text-anchor="end"
+        font-family="Noto Sans CJK SC, sans-serif" font-size="30" font-weight="600"
+        fill="#ffffff" fill-opacity="0.55">山河 Linux</text>
+</svg>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 卅语工作室图标：代码窗格 + 卅 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2b6fd4"/>
+      <stop offset="100%" stop-color="#0f4fa8"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="12" fill="url(#bg)"/>
+  <path d="M14 22 l8 8 -8 8" stroke="#cfe6ff" stroke-width="4" fill="none"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="36" y="46" text-anchor="middle"
+        font-family="Noto Sans CJK SC, sans-serif" font-size="30" font-weight="700"
+        fill="#ffffff">卅</text>
+</svg>

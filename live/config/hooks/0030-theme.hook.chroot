@@ -1,0 +1,130 @@
+#!/bin/sh
+# 0030：Windows 11 风格主题落地 —— 壁纸、区域、默认字体、SDDM 登录屏。
+# 任务栏布局由 includes.chroot 里 /etc/skel/.config/autostart-scripts/ 的
+# 脚本在用户首次进入桌面时应用（详见 /usr/share/plasma/shanhe/win11-layout.js）。
+set -e
+
+echo "-- 主题：生成中文字区 locale"
+sed -i 's/^# *zh_CN.UTF-8/zh_CN.UTF-8/' /etc/locale.gen
+locale-gen 2>/dev/null || true
+
+echo "-- 主题：壁纸 SVG 转 PNG（多分辨率）"
+WP_SRC=/usr/share/wallpapers/shanhe/contents/images
+if command -v rsvg-convert >/dev/null 2>&1 && [ -f "$WP_SRC/山河壁纸.svg" ]; then
+    for size in "1920x1080" "2560x1440" "3840x2160"; do
+        w=${size%x*}; h=${size#*x}
+        rsvg-convert -w "$w" -h "$h" --keep-aspect-ratio -o "$WP_SRC/$size.png.tmp" "$WP_SRC/山河壁纸.svg" && \
+            mv "$WP_SRC/$size.png.tmp" "$WP_SRC/$size.png" || true
+    done
+    rm -f "$WP_SRC"/*.tmp
+fi
+
+echo "-- 主题：新用户默认配置（字体 / 桌面目录中文化 / 输入法）"
+mkdir -p /etc/skel/.config
+cat > /etc/skel/.config/kdeglobals <<'EOF'
+[General]
+XftHintFont=HintFull
+XftSubPixel=rgb
+font=Noto Sans CJK SC,10.5,-1,5,50,0,0,0,0,0
+menuFont=Noto Sans CJK SC,10.5,-1,5,50,0,0,0,0,0
+smallestReadableFont=Noto Sans CJK SC,8.5,-1,5,50,0,0,0,0,0
+toolBarFont=Noto Sans CJK SC,10,-1,5,50,0,0,0,0,0
+fixed=Noto Sans Mono CJK SC,10.5,-1,5,50,0,0,0,0,0
+
+[Icons]
+Theme=breeze
+
+[KDE]
+widgetStyle=breeze
+SingleClick=false
+
+[WM]
+activeFont=Noto Sans CJK SC,10.5,-1,5,50,0,0,0,0,0
+EOF
+
+# 活动配色：山河蓝（Win11 式选中色），基于 Breeze 微调
+mkdir -p /etc/skel/.local/share/color-schemes
+cp -f /usr/share/plasma/shanhe/山河蓝.colors /etc/skel/.local/share/color-schemes/ 2>/dev/null || true
+
+# 用户目录中文化（桌面/文档/下载…）
+cat > /etc/skel/.config/user-dirs.dirs <<'EOF'
+XDG_DESKTOP_DIR="$HOME/桌面"
+XDG_DOCUMENTS_DIR="$HOME/文档"
+XDG_DOWNLOAD_DIR="$HOME/下载"
+XDG_MUSIC_DIR="$HOME/音乐"
+XDG_PICTURES_DIR="$HOME/图片"
+XDG_VIDEOS_DIR="$HOME/视频"
+XDG_TEMPLATES_DIR="$HOME/模板"
+XDG_PUBLICSHARE_DIR="$HOME/公共"
+EOF
+
+# 输入法环境（systemd 用户会话走 environment.d；X11 走 .xinputrc）
+cat > /etc/skel/.xinputrc <<'EOF'
+run_im fcitx5
+EOF
+chmod 755 /etc/skel/.xinputrc
+
+echo "-- 主题：系统级输入法环境变量"
+cat > /etc/environment.d/90-shanhe-im.conf <<'EOF'
+GTK_IM_MODULE=fcitx5
+QT_IM_MODULE=fcitx5
+XMODIFIERS=@im=fcitx5
+SDL_IM_MODULE=fcitx5
+EOF
+
+echo "-- 主题：Konsole 默认配置（Win11 终端观感 + 中文字体）"
+cat > /etc/skel/.local/share/konsole/山河.profile <<'EOF'
+[Appearance]
+ColorScheme=山河暗
+Font=Noto Sans Mono CJK SC,11,-1,5,50,0,0,0,0,0
+
+[General]
+Name=山河
+Parent=
+EOF
+cat > /etc/skel/.local/share/konsole/山河暗.colorscheme <<'EOF'
+[Background]
+Color=12,12,12
+
+[BackgroundFaint]
+Color=12,12,12
+
+[BackgroundIntense]
+Color=12,12,12
+
+[Color0]
+Color=12,12,12
+
+[Foreground]
+Color=204,204,204
+
+[General]
+Blur=false
+ColorRandomization=false
+Description=山河暗
+Opacity=0.97
+EOF
+
+cat > /etc/skel/.config/konsolerc <<'EOF'
+[Desktop Entry]
+DefaultProfile=山河.profile
+
+[KonsoleWindow]
+ShowMenuBarByDefault=false
+EOF
+
+echo "-- 主题：SDDM 及用户会话均锁定 X11（VMware 最稳，且剪贴板/拖放依赖 X11）"
+# 文件名用 zz- 前缀：sddm.conf.d 按字母序后者覆盖前者，确保压过 live-config 生成的自动登录配置
+mkdir -p /etc/sddm.conf.d
+cat > /etc/sddm.conf.d/zz-shanhe.conf <<'EOF'
+[General]
+DisplayServer=x11
+
+[Autologin]
+Session=plasmax11.desktop
+
+[X11]
+Session=plasmax11.desktop
+EOF
+
+echo "-- 主题：完成"

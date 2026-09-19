@@ -1,0 +1,12 @@
+#!/bin/sh
+# 山河帮助 —— 打开本地使用手册与卅语入门
+HELP_HTML=/usr/local/share/shanhe/帮助.html
+if [ -f "$HELP_HTML" ]; then
+    exec xdg-open "$HELP_HTML"
+fi
+# 兜底：打开文本版
+HELP_TXT=/usr/local/share/shanhe/帮助.txt
+if [ -f "$HELP_TXT" ]; then
+    exec konsole -e less "$HELP_TXT"
+fi
+zenity --info --text="帮助文件未找到。" 2>/dev/null || echo "帮助文件未找到。"

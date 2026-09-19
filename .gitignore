@@ -1,0 +1,34 @@
+# ── 构建产物（ISO 走 GitHub Releases，不进仓库） ──
+*.iso
+*.img
+*.log
+build.log
+
+# ── live-build 构建目录（构建机本地生成） ──
+live/chroot/
+live/cache/
+live/binary/
+live/.build/
+live/local/
+live/config/binary
+live/config/bootstrap
+live/config/chroot
+live/config/common
+live/config/source
+live/config/build
+live/config/environment
+live/config/archives/
+
+# ── 内部/临时 ──
+.mimosa/
+__pycache__/
+*.pyc
+*.pyo
+*.swp
+.DS_Store
+Thumbs.db
+
+# ── 发布压缩包本身 ──
+*.zip
+*.tar.gz
+VERSION.lock

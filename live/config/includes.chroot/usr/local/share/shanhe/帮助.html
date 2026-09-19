@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>山河 Linux · 使用手册</title>
+<style>
+  body { font-family: "Noto Sans CJK SC", sans-serif; max-width: 860px;
+         margin: 0 auto; padding: 32px; color: #1a1a1a; line-height: 1.75; }
+  h1 { color: #0f4fa8; border-bottom: 3px solid #2b6fd4; padding-bottom: 8px; }
+  h2 { color: #0f4fa8; margin-top: 2em; }
+  code, pre { background: #f0f3f7; border-radius: 6px; }
+  code { padding: 2px 6px; }
+  pre { padding: 14px; overflow-x: auto; border: 1px solid #dde3ea; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid #ccd4dd; padding: 8px 12px; text-align: left; }
+  th { background: #eaf2fc; }
+  .tip { background: #eaf6ea; border-left: 4px solid #3a9d5d; padding: 10px 16px; }
+</style>
+</head>
+<body>
+
+<h1>山河 Linux 1.0 · 使用手册</h1>
+<p><strong>山河 Linux</strong> 是一台「中文原生编程」操作系统：内置 <strong>卅语（sahou）</strong>
+解释器与「卅语工作室」编辑器，界面参照 Windows 11，可运行大多数 Windows 软件与游戏。</p>
+
+<h2>一、写你的第一行中文代码</h2>
+<ol>
+  <li>桌面双击 <strong>卅语工作室</strong>（或开始菜单 → 开发）。</li>
+  <li>新文件自带示例，直接按 <kbd>F5</kbd> 运行。</li>
+  <li>终端里也可以：<code>sahou run 程序.saho</code>；敲 <code>卅</code> 回车进入交互环境。</li>
+</ol>
+<pre>
+# 卅语速览（中英文关键字可混写）
+年龄 = 输入("你多大了？")
+如果 数(年龄) >= 18
+    打印("欢迎来到成人世界。")
+否则
+    打印("你还是个孩子。")
+完毕
+</pre>
+
+<h2>二、键盘与输入法</h2>
+<ul>
+  <li>中文输入：<strong>Ctrl + 空格</strong> 切换 Fcitx5 拼音。</li>
+  <li>编辑器快捷键：<kbd>F5</kbd> 运行 · <kbd>Ctrl+S</kbd> 保存 · <kbd>Ctrl+F</kbd> 查找 · <kbd>Ctrl+N</kbd> 新建。</li>
+</ul>
+
+<h2>三、运行 Windows 软件</h2>
+<ul>
+  <li>双击 <code>.exe</code> 即可安装/运行（Wine 已内置）。</li>
+  <li>遇到中文乱码 → 「Wine 助手」→ 中文字体修复。</li>
+  <li>部分依赖 Windows 内核驱动的软件（反作弊网游、部分杀毒）无法运行，详见兼容性文档。</li>
+</ul>
+
+<h2>四、显卡</h2>
+<ul>
+  <li><strong>VMware 虚拟机</strong>：开启 3D 加速即可（虚拟机设置 → 显示器 → 加速 3D 图形）。</li>
+  <li><strong>物理机 NVIDIA</strong>：开始菜单 → 「安装 NVIDIA 驱动」，装完重启，<code>nvidia-smi</code> 验证。</li>
+</ul>
+
+<h2>五、常用位置</h2>
+<table>
+  <tr><th>内容</th><th>位置</th></tr>
+  <tr><td>卅语示例程序</td><td><code>~/示例</code>、<code>/usr/local/share/sahou/示例</code></td></tr>
+  <tr><td>卅语全套文档</td><td><code>/usr/local/share/sahou/文档</code></td></tr>
+  <tr><td>我的程序</td><td><code>~/我的程序</code></td></tr>
+  <tr><td>Wine 容器（C 盘）</td><td><code>~/.wine/drive_c</code></td></tr>
+</table>
+
+<p class="tip">提示：体验模式（Live）里的所有改动重启后丢失。要长期使用，
+用 GRUB 菜单的「安装 山河Linux」装到虚拟硬盘。</p>
+
+</body>
+</html>

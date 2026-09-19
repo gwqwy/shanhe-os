@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Wine 助手
+Name[en]=Wine Assistant
+Comment=运行 Windows 程序、配置 Wine、中文字体修复
+Exec=/usr/local/bin/shanhe-wine-assistant
+Icon=wine
+Terminal=false
+Categories=Utility;
