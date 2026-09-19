@@ -38,7 +38,15 @@ echo "-- 卅语：先交叉编译浏览器 WASM 运行时（主程序要把它�
 export GOFLAGS=-mod=mod
 export GOTOOLCHAIN=local
 export GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod
-CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -o sahou.wasm ./cmd/sahouwasm
+CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -o sahou.wasm ./cmd/sahouwasm \
+    || { echo "!! wasm 构建失败，回退到上游预编译运行时"; \
+         cp -f "$SRC/examples/在线体验/sahou.wasm" sahou.wasm 2>/dev/null \
+         || :; }
+if [ ! -s sahou.wasm ]; then
+    echo "!! 警告：无可用 WASM 运行时，使用空占位（仅影响 sahou serve 的网页直跑，其余功能不受影响）"
+    : > sahou.wasm
+fi
+ls -l sahou.wasm
 
 echo "-- 卅语：编译 Linux 原生解释器（内嵌标准库与 WASM 运行时）"
 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /usr/local/bin/sahou .

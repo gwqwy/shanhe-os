@@ -49,7 +49,12 @@ jobs:
           ls -lh release/
           sha256sum "山河Linux-1.0-amd64.iso" release/* | tee SHA256SUMS.txt
 
-      - name: 上传构建产物（Artifacts，保留 14 天）
+      - name: 构建失败时输出日志尾部（供诊断）
+        if: failure()
+        run: tail -n 200 build.log || true
+
+      - name: 上传构建产物（Artifacts，保留 14 天；失败时至少留下 build.log）
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shanhe-linux-iso-${{ github.run_id }}
@@ -57,7 +62,7 @@ jobs:
             release/
             SHA256SUMS.txt
             build.log
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 14
 
       - name: 发布 Release（仅 v* 标签触发）
