@@ -47,9 +47,22 @@ Theme=breeze
 [KDE]
 widgetStyle=breeze
 SingleClick=false
+AnimationDurationFactor=0.5
 
 [WM]
 activeFont=Noto Sans CJK SC,10.5,-1,5,50,0,0,0,0,0
+EOF
+
+# 点击启动体验：默认关闭 Baloo 文件索引（首登后大量磁盘 I/O 的来源，Dolphin 搜索可手动开启）
+cat > /etc/skel/.config/baloofilerc <<'EOF'
+[Basic Settings]
+Indexing-Enabled=false
+EOF
+
+# 点击启动体验：关闭 KWallet 首用密码弹窗（避免首次联网/首次点击时被无关对话框打断）
+cat > /etc/skel/.config/kwalletrc <<'EOF'
+[Wallet]
+Enabled=false
 EOF
 
 # 活动配色：山河蓝（Win11 式选中色），基于 Breeze 微调

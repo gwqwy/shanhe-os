@@ -7,8 +7,9 @@ mkdir -p /etc/skel/.config/autostart-scripts
 cat > /etc/skel/.config/autostart-scripts/10-init-wine.sh <<'EOF'
 #!/bin/sh
 # 后台静默初始化 Wine 前缀（~/.wine），失败不影响桌面。
+# 推迟 45 秒并以最低优先级运行：避免与用户首屏点击抢 CPU/磁盘。
 if [ ! -d "$HOME/.wine" ] && command -v wine >/dev/null 2>&1; then
-    ( WINEDEBUG=-all wine wineboot --init >/dev/null 2>&1 ) &
+    ( sleep 45 && nice -n 19 env WINEDEBUG=-all wine wineboot --init >/dev/null 2>&1 ) &
 fi
 exit 0
 EOF
@@ -38,10 +39,10 @@ EOF
 echo "-- Wine：首次进桌面自动导入字体表"
 cat > /etc/skel/.config/autostart-scripts/11-wine-cjk.sh <<'EOF'
 #!/bin/sh
-if [ -d "$HOME/.wine" ] && command -v wine >/dev/null 2>&1 && [ ! -f "$HOME/.wine/.shanhe-cjk" ]; then
-    ( WINEDEBUG=-all wine regedit /usr/share/wine/shanhe/cjk-fonts.reg >/dev/null 2>&1 \
-        && touch "$HOME/.wine/.shanhe-cjk" ) &
-fi
+# 等容器初始化完成（10-init-wine 推迟 45 秒）后导入中文字体表。
+( sleep 60 && nice -n 19 env WINEDEBUG=-all sh -c \
+    'if [ -d "$HOME/.wine" ] && command -v wine >/dev/null 2>&1 && [ ! -f "$HOME/.wine/.shanhe-cjk" ]; then wine regedit /usr/share/wine/shanhe/cjk-fonts.reg >/dev/null 2>&1 && touch "$HOME/.wine/.shanhe-cjk"; fi' \
+    >/dev/null 2>&1 ) &
 exit 0
 EOF
 chmod 755 /etc/skel/.config/autostart-scripts/11-wine-cjk.sh

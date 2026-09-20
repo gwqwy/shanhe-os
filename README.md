@@ -6,7 +6,7 @@ Windows 11 风格桌面，Wine 兼容层可运行 Windows 软件与游戏，支�
 
 ```
 一个命令构建：  sudo bash build.sh
-产物：         山河Linux-1.0-amd64.iso  →  挂进 VMware 开机即用
+产物：         山河Linux-0.1.1-amd64.iso  →  挂进 VMware 开机即用
 ```
 
 ---

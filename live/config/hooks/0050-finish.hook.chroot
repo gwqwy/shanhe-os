@@ -1,21 +1,36 @@
 #!/bin/sh
-# 0050：收尾 —— 欢迎语、版本信息、源码位置、镜像瘦身。
+# 0050：收尾 —— 版本信息、性能调优、欢迎语、镜像瘦身。
 set -e
 
+VERSION="0.1.1"
+
 echo "-- 收尾：系统标识"
-cat > /etc/shanhe-release <<'EOF'
-PRETTY_NAME="山河 Linux 1.0 (ShanHe)"
+cat > /etc/shanhe-release <<EOF
+PRETTY_NAME="山河 Linux $VERSION (ShanHe)"
 NAME="山河 Linux"
-VERSION_ID="1.0"
-VERSION="1.0 (ShanHe)"
-HOME_URL="https://github.com/gwqwy/sahou"
+VERSION_ID="$VERSION"
+VERSION="$VERSION (ShanHe)"
+HOME_URL="https://github.com/gwqwy/shanhe-os"
 ID=shanhe
 EOF
 
-echo "-- 收尾：终端欢迎信息"
-cat > /etc/motd <<'EOF'
+echo "-- 收尾：性能调优 —— zram 内存压缩交换 + 内核参数（点击启动软件不卡的关键）"
+cat > /etc/default/zramswap <<'EOF'
+# 山河Linux：内存压缩交换（比磁盘 swap 快一个数量级）
+ALGO=zstd
+PERCENT=75
+PRIORITY=100
+EOF
+cat > /usr/lib/sysctl.d/90-shanhe.conf <<'EOF'
+# 山河Linux 性能默认值：zram 场景下更积极换页，缓存目录项/索引节点加速应用冷启动
+vm.swappiness = 100
+vm.vfs_cache_pressure = 50
+EOF
 
-  山 ▂▃▅▂ 河 Linux 1.0 ── 中文原生编程操作系统
+echo "-- 收尾：终端欢迎信息"
+cat > /etc/motd <<EOF
+
+  山 ▂▃▅▂ 河 Linux $VERSION ── 中文原生编程操作系统
   ────────────────────────────────────────────
   写中文代码：    sahou run 程序.saho   （或直接敲  卅  进入交互环境）
   打开编辑器：    桌面双击「卅语工作室」，F5 一键运行

@@ -25,9 +25,9 @@ lb config noauto \
     --linux-flavours amd64 \
     --debian-installer live \
     --debian-installer-distribution trixie \
-    --iso-volume "ShanHe-Linux-1.0" \
+    --iso-volume "ShanHe-Linux-0.1.1" \
     --image-name shanhe \
-    --iso-application "ShanHe Linux 1.0" \
+    --iso-application "ShanHe Linux 0.1.1" \
     --iso-publisher "ShanHe Project; https://github.com/gwqwy/sahou" \
     --memtest none \
     --firmware-chroot false \

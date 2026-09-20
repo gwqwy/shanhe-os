@@ -77,3 +77,6 @@ firefox-esr-l10n-zh-cn
 fastfetch
 htop
 nano
+
+## ── 性能：内存压缩交换（低内存虚拟机开软件不卡的关键） ──
+zram-tools
