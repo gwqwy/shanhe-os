@@ -73,8 +73,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           ISO=$(ls -1 山河Linux-*.iso | head -n1)
-          { cat CHANGELOG.md
+          # 只截取 CHANGELOG 中当前版本的段落，Release 说明不随版本积累变长
+          awk -v hdr "## ${GITHUB_REF_NAME}" '
+            index($0, hdr) == 1 { flag = 1 }
+            /^## / && flag && index($0, hdr) != 1 { exit }
+            flag { print }
+          ' CHANGELOG.md > RELEASE_SECTION.md
+          if [ ! -s RELEASE_SECTION.md ]; then
+            echo "## 山河Linux ${GITHUB_REF_NAME}" > RELEASE_SECTION.md
+            echo "> （CHANGELOG.md 中未找到 ${GITHUB_REF_NAME} 段落，请补充更新说明）" >> RELEASE_SECTION.md
+          fi
+          { cat RELEASE_SECTION.md
             echo
+            echo '---'
             echo '## ISO 分卷与校验'
             echo "ISO 文件名：\`$ISO\`"
             echo '下载全部 part 文件放在同一目录后合并：'
