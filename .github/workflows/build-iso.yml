@@ -72,12 +72,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          ISO=$(ls -1 山河Linux-*.iso | head -n1)
           { cat CHANGELOG.md
             echo
             echo '## ISO 分卷与校验'
-            echo '下载全部 part 文件后合并：'
-            echo '- Windows CMD：`copy /b 山河Linux-1.0-amd64.iso.part00 + 山河Linux-1.0-amd64.iso.part01 山河Linux-1.0-amd64.iso`'
-            echo '- Linux/macOS：`cat 山河Linux-1.0-amd64.iso.part* > 山河Linux-1.0-amd64.iso`'
+            echo "ISO 文件名：\`$ISO\`"
+            echo '下载全部 part 文件放在同一目录后合并：'
+            echo "- Windows CMD：\`copy /b ${ISO}.part00 + ${ISO}.part01 ${ISO}\`"
+            echo "- Linux/macOS：\`cat ${ISO}.part* > ${ISO}\`"
+            echo '合并后校验：`sha256sum '$ISO'`（Windows 用 certutil -hashfile ... SHA256）'
             echo
             echo '```'
             cat SHA256SUMS.txt
