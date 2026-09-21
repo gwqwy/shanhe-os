@@ -1,0 +1,16 @@
+#!/bin/sh
+# 卅语课堂 —— 启动本地学习页面（浏览器 + 卅语 WASM 引擎，全程离线）
+DIR=/usr/local/share/shanhe/课堂
+PORT=8123
+
+# 已有课堂服务在跑就直接开浏览器
+if ! pgrep -f "http.server $PORT" >/dev/null 2>&1; then
+    cd "$DIR" 2>/dev/null || exit 1
+    nohup python3 -m http.server "$PORT" --bind 127.0.0.1 >/dev/null 2>&1 &
+    sleep 1
+fi
+
+xdg-open "http://127.0.0.1:$PORT/" >/dev/null 2>&1 \
+    || firefox-esr "http://127.0.0.1:$PORT/" >/dev/null 2>&1 \
+    || echo "请用浏览器打开 http://127.0.0.1:$PORT/"
+exit 0

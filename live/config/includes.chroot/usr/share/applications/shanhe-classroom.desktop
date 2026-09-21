@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=卅语课堂
+Name[en]=Sahou Classroom
+GenericName=卅语交互课程
+Comment=10 节闯关课，浏览器里边写边跑，学会中文编程
+Exec=/usr/local/bin/shanhe-classroom
+Icon=shanhe-classroom
+Terminal=false
+Categories=Education;Development;
+Keywords=sahou;卅语;课堂;学习;
+StartupNotify=true

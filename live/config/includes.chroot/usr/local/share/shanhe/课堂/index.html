@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>卅语课堂 · 山河Linux</title>
+<style>
+  :root { --blue:#0f72c0; --blue2:#4aa3f0; --ink:#1a2233; --pane:#101826; --pane2:#1b2740; --ok:#2fa86e; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif; background:#e9eef5; color:var(--ink); height:100vh; display:flex; flex-direction:column; }
+  header { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,#0f4fa8,#2b6fd4); color:#fff; padding:10px 18px; }
+  header .logo { width:34px; height:34px; border-radius:8px; background:#fff2; display:grid; place-items:center; font-weight:700; }
+  header h1 { font-size:17px; font-weight:600; }
+  header .sub { font-size:12px; opacity:.85; }
+  header .spacer { flex:1; }
+  .progress-wrap { width:220px; }
+  .progress-bar { height:8px; border-radius:6px; background:#ffffff33; overflow:hidden; }
+  .progress-bar i { display:block; height:100%; background:#7ec3ff; width:0; transition:width .4s; }
+  .progress-text { font-size:11px; opacity:.85; margin-top:3px; text-align:right; }
+  .wrap { flex:1; display:grid; grid-template-columns:240px 1fr; min-height:0; }
+  nav { background:#fff; border-right:1px solid #d7dfe9; overflow-y:auto; padding:10px 8px; }
+  nav .lesson { display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:8px; cursor:pointer; font-size:14px; }
+  nav .lesson:hover { background:#eef4fb; }
+  nav .lesson.active { background:var(--blue); color:#fff; font-weight:600; }
+  nav .lesson .mark { margin-left:auto; color:var(--ok); font-weight:700; }
+  nav .lesson.active .mark { color:#c9f3dd; }
+  main { display:flex; flex-direction:column; min-width:0; min-height:0; padding:12px 14px; gap:10px; overflow:hidden; }
+  .card { background:#fff; border:1px solid #d7dfe9; border-radius:10px; }
+  .explain { padding:12px 16px; overflow-y:auto; max-height:24vh; }
+  .explain h2 { font-size:16px; margin-bottom:6px; color:var(--blue); }
+  .explain p, .explain li { font-size:13.5px; line-height:1.8; }
+  .explain code { background:#eef2f8; border-radius:4px; padding:1px 5px; font-family:Consolas,monospace; }
+  .explain .task { margin-top:8px; background:#f0f7ef; border-left:4px solid var(--ok); padding:6px 10px; border-radius:4px; }
+  .editor-head { display:flex; align-items:center; gap:8px; padding:7px 12px; border-bottom:1px solid #e4eaf2; }
+  .editor-head b { font-size:13px; color:#5b6b80; font-weight:600; }
+  .editor-head .spacer { flex:1; }
+  button { font:inherit; font-size:13px; border:0; border-radius:7px; padding:6px 14px; cursor:pointer; }
+  .btn-run { background:linear-gradient(135deg,var(--blue),var(--blue2)); color:#fff; font-weight:600; }
+  .btn-run:disabled { opacity:.5; cursor:wait; }
+  .btn-ghost { background:#eef2f8; color:#41526b; }
+  textarea { width:100%; height:30vh; resize:vertical; border:0; outline:none; background:var(--pane); color:#dce7f5;
+             font:14px/1.7 Consolas,"Courier New",monospace; padding:14px; tab-size:4; border-radius:0 0 10px 10px; }
+  .out-card { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .out-head { display:flex; align-items:center; gap:8px; padding:7px 12px; border-bottom:1px solid #e4eaf2; }
+  .out-head b { font-size:13px; color:#5b6b80; }
+  pre.output { flex:1; margin:0; padding:12px 16px; overflow:auto; background:var(--pane); color:#9fe3c1;
+               font:13.5px/1.7 Consolas,monospace; white-space:pre-wrap; border-radius:0 0 10px 10px; min-height:90px; }
+  pre.output .err { color:#ff9aa8; }
+  .task-banner { display:none; padding:8px 14px; border-radius:8px; background:#e7f6ee; color:#1d7a4c;
+                 border:1px solid #bfe6d2; font-weight:600; font-size:13.5px; }
+  .task-banner.show { display:block; }
+  .status { font-size:12px; color:#7b8aa0; }
+  @media (max-width:900px) { .wrap { grid-template-columns:1fr; } nav { display:flex; overflow-x:auto; } textarea{height:24vh;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">卅</div>
+  <div>
+    <h1>卅语课堂</h1>
+    <div class="sub">写一行，跑一行 —— 卅语在你的浏览器里直接运行</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><i id="进度条"></i></div>
+    <div class="progress-text" id="进度文字">已完成 0 / 10 课</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav id="课程列表"></nav>
+  <main>
+    <div class="card explain" id="讲解"></div>
+    <div class="card">
+      <div class="editor-head">
+        <b>代码（可自由修改）</b>
+        <span class="spacer"></span>
+        <span class="status" id="状态">正在加载卅语引擎…</span>
+        <button class="btn-ghost" id="重置">恢复示例</button>
+        <button class="btn-run" id="运行" disabled>▶ 运行（Ctrl+Enter）</button>
+      </div>
+      <textarea id="代码" spellcheck="false"></textarea>
+    </div>
+    <div class="task-banner" id="任务横幅"></div>
+    <div class="card out-card">
+      <div class="out-head"><b>运行输出</b><span class="spacer"></span><span class="status">每次运行都是全新的解释器</span></div>
+      <pre class="output" id="输出">// 点击「运行」查看结果</pre>
+    </div>
+  </main>
+</div>
+
+<script src="wasm_exec.js"></script>
+<script>
+/* ───────────────────── 课程内容 ───────────────────── */
+const 课程 = [
+{
+  标题: "第 1 课 · 你好，山河",
+  讲解: `<p>欢迎来到卅语课堂！卅语是一门<b>用中文写</b>的编程语言。</p>
+<p><code>打印(...)</code> 会把括号里的内容显示到下面的输出区——就像说话一样。引号里的文字叫<b>字符串</b>，# 开头的是注释，给人看的，计算机会跳过。</p>
+<div class="task">🎯 任务：让屏幕上出现「山河」两个字。点「运行」试试，然后改改引号里的话再运行。</div>`,
+  代码: `# 你的第一行中文代码
+打印("你好，山河！")
+打印("我正在学中文编程。")
+`,
+  检查: (输出) => 输出.includes("山河")
+},
+{
+  标题: "第 2 课 · 变量与插值",
+  讲解: `<p><b>变量</b>像一个贴了名字的盒子，用 <code>名字 = 值</code> 把东西放进去。</p>
+<p>字符串里写 <code>{表达式}</code>，输出时会自动换成计算结果——这叫<b>插值</b>。试试把年龄改成你的真实年龄。</p>
+<div class="task">🎯 任务：输出一句话，里面包含「岁」。</div>`,
+  代码: `名字 = "小明"
+年龄 = 10
+
+打印("我叫{名字}，今年{年龄}岁。")
+打印("明年就 {年龄 + 1} 岁啦！")
+`,
+  检查: (输出) => 输出.includes("岁")
+},
+{
+  标题: "第 3 课 · 数学运算",
+  讲解: `<p>计算机最擅长算数：<code>+ - * /</code> 直接写，括号可以改变顺序。</p>
+<p>还有现成的数学函数：<code>四舍五入(数, 位数)</code>、<code>平方根(数)</code>、<code>绝对值(数)</code>……</p>
+<div class="task">🎯 任务：算出 23 × 41 等于多少（答案会出现在输出里）。</div>`,
+  代码: `打印((1 + 2) * 3)
+打印(23 * 41)
+打印(四舍五入(3.14159, 2))
+打印(平方根(144))
+`,
+  检查: (输出) => 输出.includes("943")
+},
+{
+  标题: "第 4 课 · 如果 / 否则",
+  讲解: `<p>程序会做选择：<code>如果 条件 ... 又如 条件 ... 否则 ... 完毕</code>。</p>
+<p>条件用比较运算：<code>&gt;=</code> 至少、<code>&gt;</code> 大于、<code>==</code> 等于、<code>!=</code> 不等。注意块要以<b>完毕</b>收尾。</p>
+<p>试着把 <code>分数</code> 改成 95 或 30，看输出怎么变。</p>
+<div class="task">🎯 任务：让程序输出「良好」。</div>`,
+  代码: `分数 = 88
+
+如果 分数 >= 90
+    打印("优秀")
+又如 分数 >= 80
+    打印("良好")
+又如 分数 >= 60
+    打印("及格")
+否则
+    打印("要加油")
+完毕
+`,
+  检查: (输出) => 输出.includes("良好")
+},
+{
+  标题: "第 5 课 · 遍历循环",
+  讲解: `<p><code>遍历 i 于 从a到b(1, 6)</code> 会循环 5 次，i 依次是 1、2、3、4、5——<b>含头不含尾</b>。</p>
+<p><code>总 = 总 + i</code> 是经典的"累加"写法：每轮把 i 加进总数。</p>
+<div class="task">🎯 任务：算出 1 + 2 + 3 + 4 + 5 的和（答案 15 会出现在输出里）。挑战：改成算 1 加到 100。</div>`,
+  代码: `总 = 0
+遍历 i 于 从a到b(1, 6)
+    总 = 总 + i
+完毕
+打印("1 到 5 的和是 {总}")
+`,
+  检查: (输出) => 输出.includes("15")
+},
+{
+  标题: "第 6 课 · 当循环与跳出",
+  讲解: `<p><code>当 条件 ... 完毕</code> 只要条件成立就一直循环；<code>跳出</code> 立刻结束循环。</p>
+<p><code>当 真</code> 是"永远循环"，必须靠 <code>跳出</code> 出来——游戏主循环就是这么写的。</p>
+<div class="task">🎯 任务：让程序数到 5 后自动停下（输出「数到了 5」）。</div>`,
+  代码: `计数 = 0
+当 真
+    计数 = 计数 + 1
+    如果 计数 == 5
+        跳出
+    完毕
+完毕
+打印("数到了 {计数}")
+`,
+  检查: (输出) => 输出.includes("数到了 5")
+},
+{
+  标题: "第 7 课 · 函数",
+  讲解: `<p><b>函数</b>是可以反复使用的代码积木：<code>函数 名字(参数) ... 返回 结果 ... 完毕</code>。</p>
+<p>定义一次，随处调用：<code>阶乘(6)</code>、<code>阶乘(10)</code>。函数让程序变短、变清楚。</p>
+<div class="task">🎯 任务：算出 10 的阶乘（10! = 3628800 会出现在输出里）。</div>`,
+  代码: `函数 阶乘(n)
+    结果 = 1
+    遍历 i 于 从a到b(1, n + 1)
+        结果 = 结果 * i
+    完毕
+    返回 结果
+完毕
+
+打印(阶乘(6))
+打印(阶乘(10))
+`,
+  检查: (输出) => 输出.includes("3628800")
+},
+{
+  标题: "第 8 课 · 列表",
+  讲解: `<p><b>列表</b>是一排格子：<code>成绩 = [90, 72, 88]</code>。</p>
+<p>常用操作：<code>列表.添加(值)</code> 追加、<code>长度(列表)</code> 个数、<code>求和</code>/<code>最大值</code>/<code>最小值</code> 统计、<code>排序(列表)</code> 排队。</p>
+<div class="task">🎯 任务：添加一个成绩 59，让总分变成 474（输出里会出现 474）。</div>`,
+  代码: `成绩 = [90, 72, 88, 65, 100]
+成绩.添加(59)
+
+打印("共 {长度(成绩)} 个成绩")
+打印("总分 {求和(成绩)}")
+打印("最高 {最大值(成绩)}")
+打印("排序后 {排序(成绩)}")
+`,
+  检查: (输出) => 输出.includes("474")
+},
+{
+  标题: "第 9 课 · 字典",
+  讲解: `<p><b>字典</b>给每个值起名字：<code>学生 = { "名字": "张三", "分数": 98 }</code>。</p>
+<p>取值两种写法都行：<code>学生.名字</code> 或 <code>学生["名字"]</code>；改值用 <code>学生["分数"] = 100</code>。</p>
+<div class="task">🎯 任务：输出里出现「张三」，并把分数更新成 100。</div>`,
+  代码: `学生 = { "名字": "张三", "班级": "三年二班", "分数": 98 }
+
+打印("姓名：{学生.名字}")
+打印("班级：{学生.班级}")
+学生["分数"] = 100
+打印("更新后分数：{学生.分数}")
+`,
+  检查: (输出) => 输出.includes("张三")
+},
+{
+  标题: "第 10 课 · 毕业项目",
+  讲解: `<p>综合运用：用<b>双重循环</b>打印九九乘法表。外层控制行，内层控制列，字符串插值负责排版。</p>
+<p>看懂每一行，你就正式出师了。之后打开「卅语工作室」，把你的想法写成真正的程序吧！</p>
+<div class="task">🎯 任务：打印出完整的九九乘法表和「恭喜毕业」。</div>`,
+  代码: `# 毕业项目：九九乘法表
+遍历 i 于 从a到b(1, 10)
+    行 = ""
+    遍历 j 于 从a到b(1, i + 1)
+        行 = 行 + "{j}×{i}={i * j}  "
+    完毕
+    打印(行)
+完毕
+打印("恭喜毕业！")
+`,
+  检查: (输出) => 输出.includes("恭喜毕业") && 输出.includes("9×9=81")
+}
+];
+
+/* ───────────────────── 状态与工具 ───────────────────── */
+const 存进度键 = "sahou-class-progress-v1";
+const 存代码键 = (i) => "sahou-class-code-" + i;
+const 读进度 = () => { try { return JSON.parse(localStorage.getItem(存进度键)) || []; } catch { return []; } };
+const 写进度 = (a) => localStorage.setItem(存进度键, JSON.stringify(a));
+
+let 当前课 = 0;
+let 引擎就绪 = false;
+
+const 列表框 = document.getElementById("课程列表");
+const 讲解框 = document.getElementById("讲解");
+const 代码框 = document.getElementById("代码");
+const 输出框 = document.getElementById("输出");
+const 运行钮 = document.getElementById("运行");
+const 状态框 = document.getElementById("状态");
+const 横幅 = document.getElementById("任务横幅");
+
+function 刷新进度() {
+  const done = 读进度();
+  const pct = Math.round(done.length * 100 / 课程.length);
+  document.getElementById("进度条").style.width = pct + "%";
+  document.getElementById("进度文字").textContent = `已完成 ${done.length} / ${课程.length} 课`;
+}
+
+function 渲染列表() {
+  const done = 读进度();
+  列表框.innerHTML = "";
+  课程.forEach((课, i) => {
+    const div = document.createElement("div");
+    div.className = "lesson" + (i === 当前课 ? " active" : "");
+    div.innerHTML = `<span>${课.标题}</span>` + (done.includes(i) ? '<span class="mark">✓</span>' : "");
+    div.onclick = () => 打开课(i);
+    列表框.appendChild(div);
+  });
+}
+
+function 打开课(i) {
+  当前课 = i;
+  const 课 = 课程[i];
+  讲解框.innerHTML = `<h2>${课.标题}</h2>` + 课.讲解;
+  代码框.value = localStorage.getItem(存代码键(i)) ?? 课.代码;
+  输出框.textContent = "// 点击「运行」查看结果";
+  横幅.className = "task-banner";
+  渲染列表();
+  代码框.focus();
+}
+
+function 运行() {
+  if (!引擎就绪) return;
+  const 源码 = 代码框.value;
+  localStorage.setItem(存代码键(当前课), 源码);
+  let r;
+  try { r = JSON.parse(globalThis.__sahou_run(源码)); }
+  catch (e) { r = { error: String(e) }; }
+  const 输出 = (r.output || "") + (r.error ? "\n✗ " + r.error : "");
+  let html = (r.output || "（没有输出）").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  if (r.error) html += '\n<span class="err">' + r.error.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+  输出框.innerHTML = html;
+
+  if (!r.error && 课程[当前课].检查(r.output || "")) {
+    横幅.textContent = "🎉 任务完成！「" + 课程[当前课].标题 + "」通过";
+    横幅.className = "task-banner show";
+    const done = 读进度();
+    if (!done.includes(当前课)) { done.push(当前课); 写进度(done); }
+    渲染列表(); 刷新进度();
+  } else {
+    横幅.className = "task-banner";
+  }
+}
+
+async function 启动引擎() {
+  try {
+    const bytes = await (await fetch("sahou.wasm")).arrayBuffer();
+    const go = new Go();
+    const r = await WebAssembly.instantiate(bytes, go.importObject);
+    go.run(r.instance);
+    引擎就绪 = true;
+    运行钮.disabled = false;
+    状态框.textContent = "引擎就绪";
+  } catch (e) {
+    状态框.textContent = "引擎加载失败：" + e;
+  }
+}
+
+运行钮.addEventListener("click", 运行);
+document.getElementById("重置").addEventListener("click", () => {
+  localStorage.removeItem(存代码键(当前课));
+  代码框.value = 课程[当前课].代码;
+});
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.key === "Enter") { e.preventDefault(); 运行(); }
+});
+代码框.addEventListener("keydown", (e) => {
+  if (e.key === "Tab") {
+    e.preventDefault();
+    const s = 代码框.selectionStart, t = 代码框.selectionEnd;
+    代码框.value = 代码框.value.slice(0, s) + "    " + 代码框.value.slice(t);
+    代码框.selectionStart = 代码框.selectionEnd = s + 4;
+  }
+});
+
+打开课(0);
+刷新进度();
+启动引擎();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 卅语课堂图标：学位帽窗格 + 卅 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2fa86e"/>
+      <stop offset="100%" stop-color="#0f7a52"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="12" fill="url(#bg)"/>
+  <path d="M32 12 L52 22 L32 32 L12 22 Z" fill="#e9f8f0"/>
+  <path d="M20 27 v9 c0 4 6 7 12 7 s12 -3 12 -7 v-9 l-12 6 Z" fill="#c9ecda"/>
+  <text x="32" y="55" text-anchor="middle"
+        font-family="Noto Sans CJK SC, sans-serif" font-size="14" font-weight="700"
+        fill="#ffffff">卅</text>
+</svg>

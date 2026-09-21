@@ -2,7 +2,7 @@
 # 0050：收尾 —— 版本信息、性能调优、欢迎语、镜像瘦身。
 set -e
 
-VERSION="0.1.1"
+VERSION="0.2.0"
 
 echo "-- 收尾：系统标识"
 cat > /etc/shanhe-release <<EOF

@@ -8,12 +8,20 @@ chmod 755 /opt/shanhe-studio/shanhe-studio.py 2>/dev/null || true
 chmod 755 /usr/local/bin/sahou-studio \
           /usr/local/bin/shanhe-wine-assistant \
           /usr/local/bin/shanhe-help \
+          /usr/local/bin/shanhe-classroom \
           /usr/local/lib/shanhe/nvidia-install.sh 2>/dev/null || true
 chmod 755 /etc/skel/.config/autostart-scripts/*.sh 2>/dev/null || true
 chmod 755 /etc/skel/.xinputrc 2>/dev/null || true
 
 echo "-- 工作室：中文命令名「卅语工作室」"
 ln -sf /usr/local/bin/sahou-studio "/usr/local/bin/卅语工作室"
+
+echo "-- 课堂：装配浏览器 WASM 运行时（来自卅语上游，随源码已在镜像内）"
+mkdir -p /usr/local/share/shanhe/课堂
+cp -f /usr/local/src/sahou/examples/在线体验/sahou.wasm /usr/local/share/shanhe/课堂/ 2>/dev/null \
+    || echo "   !! 缺少 sahou.wasm"
+cp -f /usr/local/src/sahou/examples/在线体验/wasm_exec.js /usr/local/share/shanhe/课堂/ 2>/dev/null \
+    || echo "   !! 缺少 wasm_exec.js"
 
 echo "-- 工作室：检查 GtkSourceView 卅语语法定义"
 test -f /usr/share/gtksourceview-4/language-specs/sahou.lang \
