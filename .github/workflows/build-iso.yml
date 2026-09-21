@@ -44,10 +44,12 @@ jobs:
 
       - name: ISO 分卷（GitHub 单文件上限 2GB）
         run: |
+          ISO=$(ls -1 山河Linux-*.iso | head -n1)
+          echo "构建产物: $ISO"
           mkdir -p release
-          split -b 1900M -d "山河Linux-1.0-amd64.iso" "release/山河Linux-1.0-amd64.iso.part"
+          split -b 1900M -d "$ISO" "release/${ISO}.part"
           ls -lh release/
-          sha256sum "山河Linux-1.0-amd64.iso" release/* | tee SHA256SUMS.txt
+          sha256sum "$ISO" release/* | tee SHA256SUMS.txt
 
       - name: 构建失败时输出日志尾部（供诊断）
         if: failure()
