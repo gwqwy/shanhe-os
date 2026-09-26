@@ -10,13 +10,13 @@
 | 内存 | **4096 MB 起**（跑 Windows 软件建议 8192 MB） | KDE + Wine 比较吃内存；系统已配 zram 压缩交换 |
 | 处理器 | 2 核起 | 编译卅语时多核更快 |
 | 硬盘 | 30 GB 起（NVMe/SCSI 均可） | 要安装 Windows 大软件就给 60 GB |
-| CD/DVD | 挂载 `山河Linux-0.2.0-amd64.iso` | 启动时勾选"启动时连接" |
+| CD/DVD | 挂载 `山河Linux-0.3.0-amd64.iso` | 启动时勾选"启动时连接" |
 | 显示器 | **勾选「加速 3D 图形」**，图形内存 4 GB | 3D 加速决定桌面流畅度 |
 | 网络 | NAT | 默认即可 |
 | 固件 | BIOS 或 UEFI 均可 | ISO 双模式引导 |
 
 ### 手工 .vmx 模板
-本目录提供 [`山河Linux-0.2.0.vmx`](山河Linux-0.2.0.vmx)：用 VMware 打开前先在该文件里
+本目录提供 [`山河Linux-0.3.0.vmx`](山河Linux-0.3.0.vmx)：用 VMware 打开前先在该文件里
 把 `ide1:0.fileName` 改成你的 ISO 实际路径（或直接在 VMware 里重新指定 CD/DVD）。
 
 ## 二、启动与体验

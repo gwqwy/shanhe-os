@@ -11,7 +11,7 @@
 # =============================================================================
 set -euo pipefail
 
-VERSION="0.2.0"
+VERSION="0.3.0"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIVE_DIR="$ROOT/live"
 VENDOR="$ROOT/vendor/sahou"
