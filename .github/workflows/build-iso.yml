@@ -74,7 +74,7 @@ jobs:
         run: |
           ISO=$(ls -1 山河Linux-*.iso | head -n1)
           # 只截取 CHANGELOG 中当前版本的段落，Release 说明不随版本积累变长
-          awk -v hdr "## ${GITHUB_REF_NAME}" '
+          awk -v hdr="## ${GITHUB_REF_NAME}" '
             index($0, hdr) == 1 { flag = 1 }
             /^## / && flag && index($0, hdr) != 1 { exit }
             flag { print }
