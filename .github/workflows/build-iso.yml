@@ -1,16 +1,29 @@
 name: 构建山河Linux ISO
 
 # 触发方式：
-#   1. 推送 v* 标签（如 v0.1.1）→ 构建 + 自动发布 Release（含分卷 ISO）
-#   2. Actions 页面手动 Run workflow → 仅构建，产物在 Artifacts 里下载
+#   1. 推送 v* 标签（如 v0.3.0）→ 构建 + 自动发布 Release（含分卷 ISO）
+#   2. 推送到 main 分支        → 仅构建，产物在 Artifacts 里下载（不发 Release）
+#   3. Actions 页面手动 Run workflow → 仅构建，产物在 Artifacts 里下载
+#
+# 注意：branches 与 tags 必须同时声明。GitHub 规则是「只写 tags 则分支推送不触发，
+# 只写 branches 则标签推送不触发」，两者都写才是「命中任一即触发」。
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
 
 permissions:
   contents: write
+
+# 同一个分支/标签只保留最新一次构建：新的推送会取消同一分支上尚未跑完的旧构建，
+# 避免连续推送时多个长达数小时的构建排队占满运行器。
+# 分组键含 ref，标签构建（发版）自成一组，不会被分支推送取消。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
