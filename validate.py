@@ -8,12 +8,17 @@ ROOT = Path(__file__).parent
 fails = []
 
 # 1) Python 语法
-pyf = ROOT / "live/config/includes.chroot/opt/shanhe-studio/shanhe-studio.py"
-try:
-    ast.parse(pyf.read_text(encoding="utf-8"))
-    print("OK   Python 语法:", pyf.name)
-except SyntaxError as exc:
-    fails.append(f"FAIL Python 语法 {pyf}: {exc}")
+PY_FILES = [
+    "live/config/includes.chroot/opt/shanhe-studio/shanhe-studio.py",
+    "live/config/includes.chroot/opt/shanhe-welcome/shanhe-welcome.py",
+]
+for rel in PY_FILES:
+    pyf = ROOT / rel
+    try:
+        ast.parse(pyf.read_text(encoding="utf-8"))
+        print("OK   Python 语法:", Path(rel).name)
+    except SyntaxError as exc:
+        fails.append(f"FAIL Python 语法 {pyf}: {exc}")
 
 # 2) XML 格式
 for x in [

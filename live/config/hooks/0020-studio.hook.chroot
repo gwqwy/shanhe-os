@@ -5,10 +5,12 @@ set -e
 
 echo "-- 工作室：修复执行权限（构建宿主的文件系统可能丢失权限位）"
 chmod 755 /opt/shanhe-studio/shanhe-studio.py 2>/dev/null || true
+chmod 755 /opt/shanhe-welcome/shanhe-welcome.py 2>/dev/null || true
 chmod 755 /usr/local/bin/sahou-studio \
           /usr/local/bin/shanhe-wine-assistant \
           /usr/local/bin/shanhe-help \
           /usr/local/bin/shanhe-classroom \
+          /usr/local/bin/shanhe-welcome \
           /usr/local/lib/shanhe/nvidia-install.sh 2>/dev/null || true
 chmod 755 /etc/skel/.config/autostart-scripts/*.sh 2>/dev/null || true
 chmod 755 /etc/skel/.xinputrc 2>/dev/null || true

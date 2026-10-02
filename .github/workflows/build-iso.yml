@@ -1,7 +1,7 @@
 name: 构建山河Linux ISO
 
 # 触发方式：
-#   1. 推送 v* 标签（如 v0.3.0）→ 构建 + 自动发布 Release（含分卷 ISO）
+#   1. 推送 v* 标签（如 v0.4.0）→ 构建 + 自动发布 Release（含分卷 ISO）
 #   2. 推送到 main 分支        → 仅构建，产物在 Artifacts 里下载（不发 Release）
 #   3. Actions 页面手动 Run workflow → 仅构建，产物在 Artifacts 里下载
 #
@@ -32,6 +32,16 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
+
+      - name: 发布前校验 CHANGELOG（仅 v* 标签；10 秒内失败，避免白等 40 分钟）
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          if ! grep -q "^## ${GITHUB_REF_NAME}" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md 顶部缺少「## ${GITHUB_REF_NAME}（日期）」段落。"
+            echo "::error::请补充该版本的更新说明后，删除标签重新打：git tag -d ${GITHUB_REF_NAME} && git push origin :refs/tags/${GITHUB_REF_NAME} && git tag ${GITHUB_REF_NAME} && git push origin ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+          echo "CHANGELOG 已包含 ${GITHUB_REF_NAME} 段落 ✓"
 
       - name: 释放磁盘空间（构建全程需 ~15GB，运行器默认只有 ~14GB）
         run: |

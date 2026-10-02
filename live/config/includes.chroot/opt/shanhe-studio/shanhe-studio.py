@@ -233,7 +233,7 @@ SNIPPETS = [
 ]
 
 
-# ── 智能编辑常量（v0.3.0 续：编辑器增强） ──
+# ── 智能编辑常量（v0.4.0 续：编辑器增强） ──
 # 需要 完毕 收尾的块起始关键字（回车时自动补 完毕 并缩进）
 BLOCK_OPENERS = ("函数", "如果", "又如", "否则", "遍历", "当", "尝试", "接住")
 # 自动配对的括号与引号（左 → 右）
@@ -736,7 +736,7 @@ class ShanHeStudio(Gtk.Window):
         self.lang = find_language()
         self.tabs = []
         self.ref_win = None
-        # v0.3.0 续：字号、最近文件、自动补全
+        # v0.4.0 续：字号、最近文件、自动补全
         self.font_size = FONT_SIZES[DEFAULT_FONT_INDEX]
         self.recent = load_recent()
         self.provider = SahoCompletionProvider()
@@ -1278,7 +1278,7 @@ class ShanHeStudio(Gtk.Window):
 
         GLib.timeout_add(seconds * 1000, restore)
 
-    # ── 速查 / 片段 / 打包 / 语法检查（v0.3.0 IDE 增强） ──
+    # ── 速查 / 片段 / 打包 / 语法检查（v0.4.0 IDE 增强） ──
 
     def insert_text(self, text):
         """把一段文本插入当前标签的光标处。"""
@@ -1412,7 +1412,7 @@ class ShanHeStudio(Gtk.Window):
         dlg.destroy()
         return name
 
-    # ── v0.3.0 续：自动补全 / 最近文件 / 编辑动作 / 跳转字号 / 查找替换 ──
+    # ── v0.4.0 续：自动补全 / 最近文件 / 编辑动作 / 跳转字号 / 查找替换 ──
 
     def attach_completion(self, view):
         """给编辑器装上卅语自动补全（旧版 GtkSource 不支持时静默跳过）。"""
@@ -1563,7 +1563,7 @@ class ShanHeStudio(Gtk.Window):
         count = tab.search_context.replace_all(self.replace_entry.get_text(), -1)
         self.flash_status("已替换 %d 处" % count)
 
-    # ── v0.3.0 续：网页预览 / 调试诊断 / 库包管理 ──
+    # ── v0.4.0 续：网页预览 / 调试诊断 / 库包管理 ──
 
     def preview_web(self):
         """一键把当前程序转译成网页 JS（sahou build），并起本地服务在浏览器打开。"""
