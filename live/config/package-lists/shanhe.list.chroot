@@ -22,6 +22,11 @@ oxygen-sounds
 xdg-user-dirs
 xdg-utils
 
+## ── 软件中心：Discover 图形化安装应用（apt 源） ──
+plasma-discover
+packagekit
+appstream
+
 ## ── 中文化与输入法 ──
 locales
 fonts-noto-cjk

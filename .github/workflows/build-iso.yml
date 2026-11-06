@@ -1,7 +1,7 @@
 name: 构建山河Linux ISO
 
 # 触发方式：
-#   1. 推送 v* 标签（如 v0.4.0）→ 构建 + 自动发布 Release（含分卷 ISO）
+#   1. 推送 v* 标签（如 v0.5.0）→ 构建 + 自动发布 Release（含分卷 ISO）
 #   2. 推送到 main 分支        → 仅构建，产物在 Artifacts 里下载（不发 Release）
 #   3. Actions 页面手动 Run workflow → 仅构建，产物在 Artifacts 里下载
 #
