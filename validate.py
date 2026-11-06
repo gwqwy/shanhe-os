@@ -12,6 +12,7 @@ PY_FILES = [
     "live/config/includes.chroot/opt/shanhe-studio/shanhe-studio.py",
     "live/config/includes.chroot/opt/shanhe-welcome/shanhe-welcome.py",
     "live/config/includes.chroot/opt/shanhe-update/shanhe-update.py",
+    "live/config/includes.chroot/opt/shanhe-toolbox/shanhe-toolbox.py",
 ]
 for rel in PY_FILES:
     pyf = ROOT / rel

@@ -48,6 +48,9 @@ UNTITLED = "未命名.saho"
 # 卅语源码快照位置：`sahou 打包` 需要在此仓库内运行（打包时会把解释器源码一并编译）
 SAHOU_SRC = "/usr/local/src/sahou"
 
+# 卅语离线文档目录（内置文档浏览器从这里读取）
+DOC_DIR = "/usr/local/share/sahou/文档"
+
 # ── 卅语速查数据（与上游 lexer.go 的 KeyWords / sahou.lang 对齐） ──
 # 关键字：20 个语句关键字 + 3 个常量（中/英双语可混用）
 KEYWORDS = [
@@ -76,7 +79,7 @@ KEYWORDS = [
     ("空值", "null", "空值"),
 ]
 
-# 内置函数（30 个，中/英双语）
+# 内置函数（基础 30 + v0.6 山河扩展 10，共 40，中/英双语）
 BUILTINS = [
     ("打印", "print", "输出到屏幕（可加参数 结尾:）"),
     ("输入", "input", "从键盘读一行"),
@@ -108,6 +111,16 @@ BUILTINS = [
     ("写入文件", "write_file", "写文件"),
     ("文件存在", "file_exists", "文件是否存在"),
     ("位置", "find", "查找元素位置"),
+    ("随机数", "random", "[0,1) 的随机小数"),
+    ("随机整数", "randint", "两数之间的随机整数（含两头）"),
+    ("当前时间", "now", "现在的时间（年-月-日 时:分:秒）"),
+    ("时间戳", "timestamp", "从 1970 年到现在的秒数"),
+    ("休眠", "sleep", "暂停指定秒（可为小数）"),
+    ("主目录", "home", "当前用户的主目录"),
+    ("拼路径", "joinpath", "把文本列表安全拼成路径"),
+    ("取环境变量", "getenv", "读环境变量（可给默认值）"),
+    ("文件列表", "listdir", "列出目录下的每一项"),
+    ("当前目录", "cwd", "程序当前所在目录"),
 ]
 
 # 标准库模块（预置，不写 用…引入 也能用）
@@ -230,10 +243,81 @@ SNIPPETS = [
 
 乘法表()
 '''),
+    ("掷骰子（随机整数）", '''# 随机整数(最小, 最大)：两头都含
+骰子 = 随机整数(1, 6)
+打印("你掷出了 {骰子} 点！")
+'''),
+    ("现在几点（时间）", '''打印("现在：{当前时间()}")
+时间 = 时间戳()
+打印("时间戳：{时间}")
+'''),
+    ("倒计时（休眠）", '''遍历 i 于 从a到b(0, 4)
+    打印(4 - i)
+    休眠(1)
+完毕
+打印("时间到！")
+'''),
+    ("扫描目录（文件列表）", '''清单 = 文件列表(主目录())
+打印("主目录共 {长度(清单)} 项：")
+遍历 路径 于 清单
+    打印(路径)
+完毕
+'''),
+    ("安全拼路径", '''文件 = 拼路径([主目录(), "我的程序", "成绩.saho"])
+打印("文件在：{文件}")
+如果 文件存在(文件)
+    打印("这个文件已经存在。")
+否则
+    打印("这个文件还不存在。")
+完毕
+'''),
+    ("读环境变量", '''家 = 取环境变量("HOME", "不知道")
+打印("HOME = {家}")
+'''),
+]
+
+# 新建项目脚手架（文件 → 新建项目）：(名称, 文件名建议, 模板代码)
+PROJECT_TEMPLATES = [
+    ("命令行程序", "我的程序.saho", '''# 命令行程序 —— 按 F5 运行
+名字 = 输入("你叫什么名字？")
+打印("你好，{名字}！")
+
+遍历 i 于 从a到b(1, 4)
+    打印("第 {i} 次问好：你好，山河！")
+完毕
+'''),
+    ("网页应用", "我的页面.saho", '''# 网页应用 —— 页面逻辑全部是卅语
+# 使用：和 index.html 放同一目录（里面有 <h1 id="标题"> 和 <button id="加一">），
+#       然后 工具 → 在浏览器中预览（网页）；或 sahou build 本文件 -o xx.js
+# 完整例子见 示例/网页/
+计数 = 0
+标题 = 页面.取元素("#标题")
+加一 = 页面.取元素("#加一")
+
+函数 刷新()
+    页面.置文本(标题, "点了 {计数} 次")
+完毕
+
+函数 点我(事件)
+    计数 = 计数 + 1
+    刷新()
+完毕
+
+页面.点击(加一, 点我)
+刷新()
+'''),
+    ("桌面应用", "我的应用.saho", '''# 桌面应用（浏览器壳）—— F5 运行后会弹出应用窗口
+模板 = "<!doctype html><html><head><meta charset='utf-8'><title>[[标题]]</title></head><body>"
+模板 = 模板 + "<h1>[[标题]]</h1><p>这是一个用 卅 写的桌面应用。</p>"
+模板 = 模板 + "</body></html>"
+写入文件("应用页面/index.html", 网页.渲染(模板, {"标题": "我的第一个桌面应用"}))
+print("页面已生成，正在打开应用窗口……")
+应用.窗口("应用页面")
+'''),
 ]
 
 
-# ── 智能编辑常量（v0.5.0 续：编辑器增强） ──
+# ── 智能编辑常量（v0.6.0 续：编辑器增强） ──
 # 需要 完毕 收尾的块起始关键字（回车时自动补 完毕 并缩进）
 BLOCK_OPENERS = ("函数", "如果", "又如", "否则", "遍历", "当", "尝试", "接住")
 # 自动配对的括号与引号（左 → 右）
@@ -736,7 +820,7 @@ class ShanHeStudio(Gtk.Window):
         self.lang = find_language()
         self.tabs = []
         self.ref_win = None
-        # v0.5.0 续：字号、最近文件、自动补全
+        # v0.6.0 续：字号、最近文件、自动补全
         self.font_size = FONT_SIZES[DEFAULT_FONT_INDEX]
         self.recent = load_recent()
         self.provider = SahoCompletionProvider()
@@ -811,6 +895,15 @@ class ShanHeStudio(Gtk.Window):
         file_menu = Gtk.Menu()
         file_menu.append(self.menu_item(
             "新建", lambda *_: self.new_tab(), "<Control>N"))
+        newproj_item = Gtk.MenuItem(label="新建项目")
+        newproj_menu = Gtk.Menu()
+        for name, suggested, template in PROJECT_TEMPLATES:
+            mi = Gtk.MenuItem(label=name)
+            mi.connect("activate",
+                       lambda _mi, s=suggested, t=template: self.new_project(s, t))
+            newproj_menu.append(mi)
+        newproj_item.set_submenu(newproj_menu)
+        file_menu.append(newproj_item)
         file_menu.append(self.menu_item(
             "打开…", lambda *_: self.open_dialog(), "<Control>O"))
         self.recent_item = Gtk.MenuItem(label="最近打开")
@@ -896,6 +989,9 @@ class ShanHeStudio(Gtk.Window):
         menu.append(tools_item)
 
         help_menu = Gtk.Menu()
+        mi = Gtk.MenuItem(label="卅语文档（离线浏览）…")
+        mi.connect("activate", lambda *_: self.show_docs())
+        help_menu.append(mi)
         mi = Gtk.MenuItem(label="卅语入门教程")
         mi.connect("activate", lambda *_: self.open_tutorial())
         help_menu.append(mi)
@@ -1145,6 +1241,8 @@ class ShanHeStudio(Gtk.Window):
                          "v2：卅语速查、代码片段库、语法检查、一键打包。\n"
                          "v2.1：自动补全、智能缩进与自动补「完毕」、查找替换、\n"
                          "      网页预览、tokens/ast 诊断、stones 库包管理。\n"
+                         "v2.2：新建项目脚手架（命令行/网页/桌面）、内置文档浏览器、\n"
+                         "      片段库扩充至 20 个。\n"
                          "卅语：https://github.com/gwqwy/sahou")
         dlg.set_logo_icon_name("utilities-terminal")
         dlg.run()
@@ -1278,7 +1376,7 @@ class ShanHeStudio(Gtk.Window):
 
         GLib.timeout_add(seconds * 1000, restore)
 
-    # ── 速查 / 片段 / 打包 / 语法检查（v0.5.0 IDE 增强） ──
+    # ── 速查 / 片段 / 打包 / 语法检查（v0.6.0 IDE 增强） ──
 
     def insert_text(self, text):
         """把一段文本插入当前标签的光标处。"""
@@ -1349,6 +1447,63 @@ class ShanHeStudio(Gtk.Window):
         dlg.run()
         dlg.destroy()
 
+    def new_project(self, suggested, template):
+        """新建项目脚手架：开一个新标签，填入模板并标记未保存（Ctrl+S 落盘）。"""
+        tab = self.new_tab()
+        if not tab:
+            return
+        tab.buffer.set_text(template)
+        tab.buffer.set_modified(True)
+        self.flash_status("已生成「" + suggested + "」骨架 —— Ctrl+S 选个位置保存即可")
+
+    def show_docs(self):
+        """内置文档浏览器：列出离线卅语文档，双击用系统默认程序打开。"""
+        import os as _os
+        dlg = Gtk.Dialog(title="卅语文档（离线）", transient_for=self, modal=True)
+        dlg.set_default_size(620, 560)
+        dlg.add_button("关闭", Gtk.ResponseType.CLOSE)
+        area = dlg.get_content_area()
+        area.set_spacing(6)
+        for edge in ("top", "bottom", "start", "end"):
+            getattr(area, "set_margin_" + edge)(8)
+
+        hint = Gtk.Label(label="双击打开；文档随系统自带，全程离线。", xalign=0)
+        area.pack_start(hint, False, False, 0)
+
+        listbox = Gtk.ListBox()
+        scroller = Gtk.ScrolledWindow()
+        scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scroller.add(listbox)
+        area.pack_start(scroller, True, True, 0)
+
+        names = []
+        try:
+            names = sorted(n for n in _os.listdir(DOC_DIR)
+                           if n.endswith((".md", ".txt")))
+        except OSError:
+            pass
+        if not names:
+            row = Gtk.ListBoxRow()
+            row.add(Gtk.Label(label="（未找到文档目录 " + DOC_DIR + "）", xalign=0))
+            listbox.add(row)
+        for n in names:
+            row = Gtk.ListBoxRow()
+            row.path = _os.path.join(DOC_DIR, n)
+            label = Gtk.Label(label=_os.path.splitext(n)[0], xalign=0)
+            for edge in ("top", "bottom", "start", "end"):
+                getattr(label, "set_margin_" + edge)(6)
+            row.add(label)
+            listbox.add(row)
+
+        def activated(_lb, row):
+            if getattr(row, "path", None):
+                Gio.AppInfo.launch_default_for_uri("file://" + row.path, None)
+
+        listbox.connect("row-activated", activated)
+        area.show_all()
+        dlg.run()
+        dlg.destroy()
+
     def syntax_check(self, path):
         """用 `sahou ast` 做纯解析检查（只分析语法、不执行代码）。
 
@@ -1412,7 +1567,7 @@ class ShanHeStudio(Gtk.Window):
         dlg.destroy()
         return name
 
-    # ── v0.5.0 续：自动补全 / 最近文件 / 编辑动作 / 跳转字号 / 查找替换 ──
+    # ── v0.6.0 续：自动补全 / 最近文件 / 编辑动作 / 跳转字号 / 查找替换 ──
 
     def attach_completion(self, view):
         """给编辑器装上卅语自动补全（旧版 GtkSource 不支持时静默跳过）。"""
@@ -1563,7 +1718,7 @@ class ShanHeStudio(Gtk.Window):
         count = tab.search_context.replace_all(self.replace_entry.get_text(), -1)
         self.flash_status("已替换 %d 处" % count)
 
-    # ── v0.5.0 续：网页预览 / 调试诊断 / 库包管理 ──
+    # ── v0.6.0 续：网页预览 / 调试诊断 / 库包管理 ──
 
     def preview_web(self):
         """一键把当前程序转译成网页 JS（sahou build），并起本地服务在浏览器打开。"""

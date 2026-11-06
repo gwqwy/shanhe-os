@@ -120,6 +120,16 @@
           <keyword>写入文件</keyword><keyword>write_file</keyword>
           <keyword>文件存在</keyword><keyword>file_exists</keyword>
           <keyword>位置</keyword><keyword>find</keyword>
+          <keyword>随机数</keyword><keyword>random</keyword>
+          <keyword>随机整数</keyword><keyword>randint</keyword>
+          <keyword>当前时间</keyword><keyword>now</keyword>
+          <keyword>时间戳</keyword><keyword>timestamp</keyword>
+          <keyword>休眠</keyword><keyword>sleep</keyword>
+          <keyword>主目录</keyword><keyword>home</keyword>
+          <keyword>拼路径</keyword><keyword>joinpath</keyword>
+          <keyword>取环境变量</keyword><keyword>getenv</keyword>
+          <keyword>文件列表</keyword><keyword>listdir</keyword>
+          <keyword>当前目录</keyword><keyword>cwd</keyword>
         </context>
 
         <!-- 标准库模块名 -->

@@ -3,10 +3,12 @@ package interp
 import (
 	"fmt"
 	"math/big"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"sahou/internal/encodesrc"
 	"sahou/internal/errs"
@@ -15,7 +17,7 @@ import (
 	"sahou/internal/stonesrc"
 )
 
-// ---------- 内置函数注册表（规范 6.2：共 29 个，另有 1 个别名不占名额）----------
+// ---------- 内置函数注册表（规范 6.2 基础 30 个；v0.6 山河扩展 10 个，共 40）----------
 
 type builtinDef struct {
 	zh, en string
@@ -87,6 +89,18 @@ func init() {
 	reg(&builtinDef{zh: "写入文件", en: "write_file", params: [][]string{{"路径!", "path!"}, {"内容!", "content!"}}, fn: biWriteFile})
 	reg(&builtinDef{zh: "文件存在", en: "file_exists", params: [][]string{{"路径!", "path!"}}, fn: biFileExists})
 	reg(&builtinDef{zh: "位置", en: "find", params: [][]string{{"文本!", "text!"}, {"子文本!", "sub!"}}, fn: biFind})
+
+	// v0.6 山河扩展内置函数（上游可回移）：随机 / 时间 / 路径 / 环境 / 目录
+	reg(&builtinDef{zh: "随机数", en: "random", params: [][]string{}, fn: biRandom})
+	reg(&builtinDef{zh: "随机整数", en: "randint", params: [][]string{{"最小!", "min!"}, {"最大!", "max!"}}, fn: biRandInt})
+	reg(&builtinDef{zh: "当前时间", en: "now", params: [][]string{}, fn: biNow})
+	reg(&builtinDef{zh: "时间戳", en: "timestamp", params: [][]string{}, fn: biTimestamp})
+	reg(&builtinDef{zh: "休眠", en: "sleep", params: [][]string{{"秒!", "seconds!"}}, fn: biSleep})
+	reg(&builtinDef{zh: "主目录", en: "home", params: [][]string{}, fn: biHome})
+	reg(&builtinDef{zh: "拼路径", en: "joinpath", params: [][]string{{"各段!", "parts!"}}, fn: biJoinPath})
+	reg(&builtinDef{zh: "取环境变量", en: "getenv", params: [][]string{{"名字!", "name!"}, {"默认", "default"}}, fn: biGetenv})
+	reg(&builtinDef{zh: "文件列表", en: "listdir", params: [][]string{{"目录!", "dir!"}}, fn: biListDir})
+	reg(&builtinDef{zh: "当前目录", en: "cwd", params: [][]string{}, fn: biCwd})
 
 	for _, d := range builtinTable {
 		b := &Builtin{Zh: d.zh, En: d.en}
@@ -218,6 +232,7 @@ var builtinDefaults = map[string]map[int]Value{
 	"连接":   {1: ""},
 	"分割":   {1: " "},
 	"四舍五入": {1: big.NewRat(0, 1)},
+	"取环境变量": {1: ""},
 }
 
 // omitted 表示"没有提供"（取 的 止 参数、缺省槽位）。
@@ -977,6 +992,149 @@ func biFileExists(in *Interp, args []Value, line int) (Value, *errs.Error) {
 	}
 	_, err := os.Stat(path)
 	return err == nil, nil
+}
+
+// ---------- v0.6 扩展内置函数（山河Linux 定制，上游可回移）----------
+
+// biRandom 随机数()：[0, 1) 的随机小数。
+func biRandom(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	rat, _ := big.NewFloat(rand.Float64()).Rat(nil)
+	return rat, nil
+}
+
+// biRandInt 随机整数(最小, 最大)：两头都含在内的随机整数。
+func biRandInt(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	lo, e := intFrom(args[0], line)
+	if e != nil {
+		return nil, errs.RuntimeHint(
+			"随机整数() 的 最小 参数要是一个整数，收到的是"+TypeName(args[0])+"。",
+			"randint() needs an integer for min, got "+TypeName(args[0])+".", "", line)
+	}
+	hi, e := intFrom(args[1], line)
+	if e != nil {
+		return nil, errs.RuntimeHint(
+			"随机整数() 的 最大 参数要是一个整数，收到的是"+TypeName(args[1])+"。",
+			"randint() needs an integer for max, got "+TypeName(args[1])+".", "", line)
+	}
+	if lo > hi {
+		return nil, errs.RuntimeHint(
+			"随机整数() 的 最小 不能大于 最大。",
+			"randint() min must not be greater than max.",
+			"例如：随机整数(1, 6) 掷骰子。", line)
+	}
+	return big.NewRat(int64(lo+rand.Intn(hi-lo+1)), 1), nil
+}
+
+// biNow 当前时间()："2006-01-02 15:04:05" 形式的本地时间。
+func biNow(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	return time.Now().Format("2006-01-02 15:04:05"), nil
+}
+
+// biTimestamp 时间戳()：从 1970 年到现在的秒数。
+func biTimestamp(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	return big.NewRat(time.Now().Unix(), 1), nil
+}
+
+// biSleep 休眠(秒)：暂停指定秒数（可为小数）。
+func biSleep(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	r, ok := args[0].(*big.Rat)
+	if !ok || r.Sign() < 0 {
+		return nil, errs.RuntimeHint(
+			"休眠() 的参数要是一个非负的数（单位秒，可为小数）。",
+			"sleep() needs a non-negative number of seconds.",
+			"例如：休眠(0.5) 暂停半秒。", line)
+	}
+	f := new(big.Float).SetPrec(120).SetRat(r)
+	f.Mul(f, big.NewFloat(1000))
+	ms, _ := f.Float64()
+	time.Sleep(time.Duration(ms) * time.Millisecond)
+	return nil, nil
+}
+
+// biHome 主目录()：当前用户的主目录（/home/xxx）。
+func biHome(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, errs.RuntimeHint(
+			"找不到主目录。", "cannot locate the home directory.", "", line)
+	}
+	return dir, nil
+}
+
+// biJoinPath 拼路径(各段列表)：把若干段文本安全地拼成一条路径。
+func biJoinPath(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	l, ok := args[0].(*List)
+	if !ok {
+		return nil, errs.RuntimeHint(
+			"拼路径() 的参数要是一个文本列表。",
+			"joinpath() needs a list of strings.",
+			"例如：拼路径([主目录(), \"我的程序\", \"成绩.saho\"])。", line)
+	}
+	parts := make([]string, 0, len(l.Items))
+	for i, item := range l.Items {
+		s, ok2 := item.(string)
+		if !ok2 {
+			return nil, errs.RuntimeHint(
+				fmt.Sprintf("拼路径() 的第 %d 段要是文本，收到的是%s。", i+1, TypeName(item)),
+				fmt.Sprintf("joinpath() part #%d must be a string.", i+1),
+				"", line)
+		}
+		parts = append(parts, s)
+	}
+	return filepath.Join(parts...), nil
+}
+
+// biGetenv 取环境变量(名字, 默认)：读不到时给默认值（默认参数缺省为空文本）。
+func biGetenv(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	name, ok := args[0].(string)
+	if !ok {
+		return nil, errs.RuntimeHint(
+			"取环境变量() 的 名字 参数要是文本，收到的是"+TypeName(args[0])+"。",
+			"getenv() needs a string name, got "+TypeName(args[0])+".", "", line)
+	}
+	def := ""
+	if a, ok2 := opt(args, 1); ok2 {
+		s, isStr := a.(string)
+		if !isStr {
+			return nil, errs.RuntimeHint(
+				"取环境变量() 的 默认 参数要是文本，收到的是"+TypeName(a)+"。",
+				"getenv() needs a string default, got "+TypeName(a)+".", "", line)
+		}
+		def = s
+	}
+	if v := os.Getenv(name); v != "" {
+		return v, nil
+	}
+	return def, nil
+}
+
+// biListDir 文件列表(目录)：列出目录下每一项（含完整路径）。
+func biListDir(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	path, e := in.resolvePath(args, line)
+	if e != nil {
+		return nil, e
+	}
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return nil, errs.RuntimeHint(
+			"读不了目录 \""+Str(args[0])+"\"。", "cannot read directory \""+Str(args[0])+"\".",
+			"检查目录是否存在；相对路径以脚本所在文件夹为基准。", line)
+	}
+	items := make([]Value, 0, len(entries))
+	for _, ent := range entries {
+		items = append(items, filepath.Join(path, ent.Name()))
+	}
+	return &List{Items: items}, nil
+}
+
+// biCwd 当前目录()：程序当前所在的目录。
+func biCwd(in *Interp, args []Value, line int) (Value, *errs.Error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return nil, errs.RuntimeHint(
+			"拿不到当前目录。", "cannot get the working directory.", "", line)
+	}
+	return dir, nil
 }
 
 // ---------- 成员函数（原地修改，规范 6.4）----------
